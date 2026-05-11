@@ -1,0 +1,1949 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>연구과제 통합 예산관리</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F5F2EB;
+    --surface:#FFFFFF;
+    --surface-alt:#FAF8F3;
+    --ink:#1A1A1A;
+    --ink-2:#4A4A4A;
+    --ink-3:#7A7A7A;
+    --ink-4:#A8A39B;
+    --line:#E5E0D3;
+    --line-2:#EFEAE0;
+    --navy:#1F3A5F;
+    --navy-soft:#E8EDF3;
+    --sage:#4A7C59;
+    --sage-soft:#E6EEE8;
+    --bronze:#8B6F47;
+    --bronze-soft:#F0E9DD;
+    --plum:#6B4862;
+    --plum-soft:#EFE5EC;
+    --slate:#4A5A6B;
+    --slate-soft:#E8EBEF;
+    --terra:#9B5443;
+    --terra-soft:#F2E1DD;
+    --warn:#C9962E;
+    --warn-soft:#FBF3E0;
+    --danger:#A04545;
+    --danger-soft:#F5E5E5;
+    --success:#4A7C59;
+    --info:#3A6D8C;
+    --info-soft:#E4EEF4;
+    --serif:"Noto Serif KR", serif;
+    --sans:"Noto Sans KR", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --mono:"JetBrains Mono", "SF Mono", Menlo, monospace;
+    --shadow-sm:0 1px 2px rgba(26,26,26,.04), 0 1px 1px rgba(26,26,26,.03);
+    --shadow:0 4px 16px rgba(26,26,26,.06), 0 1px 2px rgba(26,26,26,.04);
+    --shadow-lg:0 12px 32px rgba(26,26,26,.08), 0 2px 6px rgba(26,26,26,.04);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;font-feature-settings:"tnum" 1}
+  body{min-height:100vh}
+  .page{max-width:1320px;margin:0 auto;padding:32px 28px 80px}
+
+  /* HEADER */
+  .header{display:flex;justify-content:space-between;align-items:flex-end;padding:8px 0 28px;border-bottom:1px solid var(--line);margin-bottom:32px;gap:24px;flex-wrap:wrap}
+  .header-left{flex:1;min-width:280px}
+  .kicker{font-family:var(--serif);font-size:12px;letter-spacing:.2em;color:var(--bronze);text-transform:uppercase;margin-bottom:8px;font-weight:600}
+  .title{font-family:var(--serif);font-size:38px;font-weight:700;color:var(--ink);letter-spacing:-.02em;line-height:1.1}
+  .subtitle{font-family:var(--sans);font-size:14px;color:var(--ink-3);margin-top:10px;font-weight:400}
+  .header-stats{display:flex;gap:32px}
+  .hstat{text-align:right}
+  .hstat-label{font-family:var(--serif);font-size:11px;letter-spacing:.15em;color:var(--ink-3);text-transform:uppercase;font-weight:600;margin-bottom:4px}
+  .hstat-val{font-family:var(--mono);font-size:22px;font-weight:500;color:var(--ink);font-feature-settings:"tnum" 1}
+  .hstat-val.muted{color:var(--ink-3)}
+
+  /* CARDS */
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;margin-bottom:48px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:24px;position:relative;overflow:hidden;transition:transform .15s ease, box-shadow .15s ease}
+  .card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+  .card-accent{position:absolute;top:0;left:0;right:0;height:3px}
+  .card[data-accent="navy"] .card-accent{background:var(--navy)}
+  .card[data-accent="sage"] .card-accent{background:var(--sage)}
+  .card[data-accent="bronze"] .card-accent{background:var(--bronze)}
+  .card[data-accent="plum"] .card-accent{background:var(--plum)}
+  .card[data-accent="slate"] .card-accent{background:var(--slate)}
+  .card[data-accent="terra"] .card-accent{background:var(--terra)}
+  .card-tag{display:inline-block;font-family:var(--serif);font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;padding:3px 8px;border-radius:2px;margin-bottom:14px}
+  .card[data-accent="navy"] .card-tag{color:var(--navy);background:var(--navy-soft)}
+  .card[data-accent="sage"] .card-tag{color:var(--sage);background:var(--sage-soft)}
+  .card[data-accent="bronze"] .card-tag{color:var(--bronze);background:var(--bronze-soft)}
+  .card[data-accent="plum"] .card-tag{color:var(--plum);background:var(--plum-soft)}
+  .card[data-accent="slate"] .card-tag{color:var(--slate);background:var(--slate-soft)}
+  .card[data-accent="terra"] .card-tag{color:var(--terra);background:var(--terra-soft)}
+  .card-edit{position:absolute;top:12px;right:12px;width:26px;height:26px;border:1px solid var(--line);background:var(--surface);border-radius:2px;cursor:pointer;font-size:11px;color:var(--ink-3);opacity:0;transition:opacity .15s;display:flex;align-items:center;justify-content:center}
+  .card:hover .card-edit{opacity:1}
+  .card-edit:hover{border-color:var(--ink-3);color:var(--ink)}
+  .card-name{font-family:var(--serif);font-size:22px;font-weight:700;line-height:1.25;margin-bottom:4px;letter-spacing:-.01em;padding-right:30px}
+  .card-sub{font-size:12px;color:var(--ink-3);margin-bottom:18px;min-height:18px}
+  .card-period{font-family:var(--mono);font-size:11px;color:var(--ink-4);letter-spacing:.02em;margin-bottom:20px;padding-bottom:14px;border-bottom:1px dashed var(--line)}
+  .card-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+  .card-row-label{font-size:11px;color:var(--ink-3);font-weight:500;letter-spacing:.05em}
+  .card-row-val{font-family:var(--mono);font-size:14px;font-weight:500;color:var(--ink);font-feature-settings:"tnum" 1}
+  .card-budget{font-family:var(--mono);font-size:22px;font-weight:600;color:var(--ink);letter-spacing:-.01em;margin-bottom:4px}
+  .card-budget-unit{font-family:var(--sans);font-size:12px;color:var(--ink-3);margin-left:3px;font-weight:400}
+  .card-progress{margin-top:18px}
+  .card-bar{height:6px;background:var(--line-2);border-radius:1px;overflow:hidden;position:relative}
+  .card-bar-fill{height:100%;background:var(--ink-3);transition:width .4s ease}
+  .card[data-accent="navy"] .card-bar-fill{background:var(--navy)}
+  .card[data-accent="sage"] .card-bar-fill{background:var(--sage)}
+  .card[data-accent="bronze"] .card-bar-fill{background:var(--bronze)}
+  .card[data-accent="plum"] .card-bar-fill{background:var(--plum)}
+  .card[data-accent="slate"] .card-bar-fill{background:var(--slate)}
+  .card[data-accent="terra"] .card-bar-fill{background:var(--terra)}
+  .card-pct{display:flex;justify-content:space-between;margin-top:8px;font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+
+  .card-add{background:transparent;border:2px dashed var(--line);display:flex;align-items:center;justify-content:center;flex-direction:column;cursor:pointer;color:var(--ink-3);min-height:280px;transition:all .15s;padding:20px}
+  .card-add:hover{border-color:var(--ink-3);color:var(--ink);background:var(--surface-alt);transform:translateY(-2px)}
+  .card-add-icon{font-family:var(--serif);font-size:40px;font-weight:300;line-height:1;margin-bottom:8px}
+  .card-add-text{font-family:var(--serif);font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:600}
+
+  /* SECTIONS */
+  section{margin-bottom:44px}
+  .section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;gap:16px;flex-wrap:wrap}
+  .section-title{font-family:var(--serif);font-size:22px;font-weight:700;color:var(--ink);letter-spacing:-.01em;display:flex;align-items:baseline;gap:10px}
+  .section-num{font-family:var(--mono);font-size:13px;color:var(--bronze);font-weight:500;letter-spacing:0}
+  .section-count{font-family:var(--mono);font-size:12px;color:var(--ink-3);font-weight:400}
+
+  /* FORM + RULE PANEL */
+  .form-layout{display:grid;grid-template-columns:1fr 340px;gap:18px}
+  .form-card{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:24px}
+  .form-grid{display:grid;grid-template-columns:130px 1.2fr 1fr 1.4fr;gap:14px;margin-bottom:14px}
+  .form-row{display:grid;grid-template-columns:1fr 200px;gap:14px;margin-bottom:14px}
+  .form-row-single{margin-bottom:14px}
+  .field{display:flex;flex-direction:column;gap:6px}
+  .field-label{font-size:11px;font-weight:600;color:var(--ink-2);letter-spacing:.05em;text-transform:uppercase;font-family:var(--serif)}
+  .field-label .req{color:var(--bronze)}
+  input,select,textarea{font-family:var(--sans);font-size:14px;color:var(--ink);background:var(--surface-alt);border:1px solid var(--line);border-radius:2px;padding:10px 12px;outline:none;transition:border-color .15s, background .15s;width:100%}
+  input:focus,select:focus,textarea:focus{border-color:var(--navy);background:var(--surface)}
+  input[type="number"]{font-family:var(--mono);text-align:right}
+  select:disabled{background:var(--line-2);color:var(--ink-4);cursor:not-allowed}
+  .form-actions{display:flex;gap:10px;justify-content:flex-end;padding-top:8px;border-top:1px dashed var(--line);margin-top:6px}
+  .btn{font-family:var(--sans);font-size:13px;font-weight:500;padding:10px 22px;border:1px solid transparent;border-radius:2px;cursor:pointer;transition:all .15s ease;letter-spacing:.02em}
+  .btn-primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .btn-primary:hover{background:var(--navy);border-color:var(--navy)}
+  .btn-ghost{background:transparent;color:var(--ink-2);border-color:var(--line)}
+  .btn-ghost:hover{background:var(--surface-alt);color:var(--ink);border-color:var(--ink-3)}
+  .btn-danger{background:transparent;color:var(--danger);border-color:var(--line)}
+  .btn-danger:hover{background:var(--danger);color:#fff;border-color:var(--danger)}
+  .btn-sm{padding:6px 12px;font-size:12px}
+
+  /* RULE PANEL */
+  .rule-panel{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:20px;align-self:start;position:sticky;top:20px;max-height:calc(100vh - 40px);overflow-y:auto}
+  .rule-panel-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+  .rule-panel-title{font-family:var(--serif);font-size:14px;font-weight:700;letter-spacing:-.01em}
+  .rule-panel-subtitle{font-family:var(--mono);font-size:10px;color:var(--ink-3)}
+  .rule-empty{text-align:center;padding:30px 14px;color:var(--ink-4);font-size:12px;font-style:italic}
+  .rule-empty-icon{font-family:var(--serif);font-size:28px;color:var(--line);margin-bottom:10px;font-weight:300}
+  .rule-list{display:flex;flex-direction:column;gap:10px}
+  .rule-item{padding:12px;border-radius:3px;border-left:3px solid;cursor:default;font-size:12px}
+  .rule-item[data-sev="warn"]{background:var(--warn-soft);border-color:var(--warn)}
+  .rule-item[data-sev="info"]{background:var(--info-soft);border-color:var(--info)}
+  .rule-item[data-sev="tip"]{background:var(--sage-soft);border-color:var(--sage)}
+  .rule-head{display:flex;align-items:center;gap:6px;font-weight:600;color:var(--ink);margin-bottom:6px;font-size:12px}
+  .rule-icon{font-size:13px}
+  .rule-body{color:var(--ink-2);line-height:1.55;font-size:11.5px}
+  .rule-src{font-family:var(--mono);font-size:9.5px;color:var(--ink-3);margin-top:6px;letter-spacing:.02em}
+
+  /* TABS */
+  .tabs{display:flex;gap:0;border-bottom:1px solid var(--line);margin-bottom:0;flex-wrap:wrap}
+  .tab{font-family:var(--serif);font-size:14px;font-weight:600;padding:12px 22px;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--ink-3);cursor:pointer;letter-spacing:-.01em;transition:all .15s;position:relative;top:1px;display:flex;align-items:center;gap:8px}
+  .tab:hover{color:var(--ink-2)}
+  .tab.active{color:var(--ink);border-bottom-color:var(--ink)}
+  .tab-num{font-family:var(--mono);font-size:10px;color:var(--bronze);font-weight:500}
+  .tab.active .tab-num{color:var(--ink)}
+  .tab-panel{background:var(--surface);border:1px solid var(--line);border-top:none;padding:24px}
+
+  /* DETAIL TABLE */
+  .detail-meta{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:18px;padding-bottom:14px;border-bottom:1px dashed var(--line);flex-wrap:wrap;gap:12px}
+  .detail-meta-left{font-family:var(--serif);font-size:16px;font-weight:600;color:var(--ink)}
+  .detail-meta-left small{font-family:var(--sans);font-size:12px;color:var(--ink-3);font-weight:400;margin-left:10px}
+  .detail-meta-right{font-family:var(--mono);font-size:13px;color:var(--ink-3)}
+  .dtable{width:100%;border-collapse:collapse;font-size:13px}
+  .dtable th{font-family:var(--serif);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);background:var(--surface-alt)}
+  .dtable th.num{text-align:right}
+  .dtable td{padding:11px 12px;border-bottom:1px solid var(--line-2);vertical-align:middle}
+  .dtable td.num{text-align:right;font-family:var(--mono);font-feature-settings:"tnum" 1}
+  .dtable tr:hover td{background:var(--surface-alt)}
+  .dtable tr.total-row td{font-weight:600;color:var(--ink);background:var(--surface-alt);border-top:2px solid var(--ink);border-bottom:none}
+  .dtable .cat{color:var(--ink-3);font-size:11px;letter-spacing:.05em;text-transform:uppercase;font-family:var(--serif);font-weight:600}
+  .dtable .sub{font-weight:500}
+  .dtable .note-cell{font-size:11px;color:var(--ink-4);font-style:italic}
+  .mini-bar{display:inline-block;width:60px;height:4px;background:var(--line-2);border-radius:1px;overflow:hidden;vertical-align:middle;margin-right:8px}
+  .mini-bar-fill{height:100%;background:var(--ink-3);display:block}
+  .pct-cell{display:flex;align-items:center;justify-content:flex-end;gap:0}
+
+  /* EXPENSE LIST */
+  .list-actions{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{font-family:var(--sans);font-size:12px;padding:6px 12px;background:transparent;border:1px solid var(--line);border-radius:99px;cursor:pointer;color:var(--ink-3);transition:all .15s}
+  .chip:hover{border-color:var(--ink-3);color:var(--ink-2)}
+  .chip.active{background:var(--ink);border-color:var(--ink);color:#fff}
+  .etable{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface);border:1px solid var(--line);border-radius:4px;overflow:hidden}
+  .etable th{font-family:var(--serif);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);text-align:left;padding:14px 14px;background:var(--surface-alt);border-bottom:1px solid var(--line)}
+  .etable th.num{text-align:right}
+  .etable th.center{text-align:center}
+  .etable td{padding:14px;border-bottom:1px solid var(--line-2);vertical-align:middle}
+  .etable td.num{text-align:right;font-family:var(--mono);font-feature-settings:"tnum" 1;font-weight:500}
+  .etable td.center{text-align:center}
+  .etable tr:last-child td{border-bottom:none}
+  .etable tr:hover td{background:var(--surface-alt)}
+  .pdot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:8px;vertical-align:middle}
+  .e-date{font-family:var(--mono);font-size:12px;color:var(--ink-3);white-space:nowrap}
+  .e-cat{font-size:11px;color:var(--ink-3)}
+  .e-desc{font-weight:500}
+  .e-note{font-size:11px;color:var(--ink-4);font-style:italic}
+  .icon-btn{background:transparent;border:1px solid var(--line);color:var(--ink-3);width:28px;height:28px;border-radius:2px;cursor:pointer;font-size:12px;padding:0;display:inline-flex;align-items:center;justify-content:center;margin:0 2px;transition:all .15s}
+  .icon-btn:hover{border-color:var(--ink-3);color:var(--ink)}
+  .icon-btn.danger:hover{border-color:var(--danger);color:var(--danger)}
+
+  .empty{padding:60px 20px;text-align:center;color:var(--ink-3)}
+  .empty-icon{font-family:var(--serif);font-size:42px;color:var(--line);margin-bottom:14px;font-weight:300}
+  .empty-text{font-size:13px;color:var(--ink-3)}
+  .empty-sub{font-size:12px;color:var(--ink-4);margin-top:6px}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:32px;right:32px;background:var(--ink);color:#fff;padding:14px 20px;border-radius:3px;font-size:13px;box-shadow:var(--shadow-lg);transform:translateY(100px);opacity:0;transition:all .3s cubic-bezier(.2,.8,.2,1);z-index:200;font-weight:500;letter-spacing:.02em}
+  .toast.show{transform:translateY(0);opacity:1}
+  .toast.error{background:var(--danger)}
+
+  /* EDITING BANNER */
+  .form-card.editing{border-color:var(--warn);background:#FFFBF0}
+  .editing-banner{display:none;font-family:var(--serif);font-size:12px;font-weight:600;color:var(--warn);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;padding:8px 12px;background:#FFF6E0;border-left:3px solid var(--warn)}
+  .form-card.editing .editing-banner{display:block}
+
+  /* MODAL */
+  .modal-bg{position:fixed;inset:0;background:rgba(26,26,26,.4);backdrop-filter:blur(2px);display:none;align-items:center;justify-content:center;z-index:300;padding:20px}
+  .modal-bg.show{display:flex}
+  .modal{background:var(--bg);border:1px solid var(--line);border-radius:4px;width:100%;max-width:900px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
+  .modal-head{padding:20px 24px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;background:var(--surface);position:sticky;top:0;z-index:2}
+  .modal-title{font-family:var(--serif);font-size:20px;font-weight:700;letter-spacing:-.01em}
+  .modal-close{background:transparent;border:none;font-size:22px;color:var(--ink-3);cursor:pointer;width:32px;height:32px;border-radius:2px;line-height:1}
+  .modal-close:hover{color:var(--ink);background:var(--surface-alt)}
+  .modal-body{padding:24px}
+  .modal-foot{padding:16px 24px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;background:var(--surface);position:sticky;bottom:0}
+  .modal-foot-left{display:flex;gap:10px}
+  .modal-foot-right{display:flex;gap:10px}
+
+  /* PROJECT FORM */
+  .pform-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+  .pform-grid.cols-3{grid-template-columns:1.6fr 1fr 1fr}
+  .pform-grid.full{grid-template-columns:1fr}
+  .accent-picker{display:flex;gap:8px;flex-wrap:wrap}
+  .accent-opt{width:32px;height:32px;border-radius:50%;border:2px solid var(--line);cursor:pointer;position:relative;transition:transform .1s}
+  .accent-opt:hover{transform:scale(1.1)}
+  .accent-opt.active{border-color:var(--ink);box-shadow:0 0 0 2px var(--surface)}
+  .accent-opt[data-c="navy"]{background:var(--navy)}
+  .accent-opt[data-c="sage"]{background:var(--sage)}
+  .accent-opt[data-c="bronze"]{background:var(--bronze)}
+  .accent-opt[data-c="plum"]{background:var(--plum)}
+  .accent-opt[data-c="slate"]{background:var(--slate)}
+  .accent-opt[data-c="terra"]{background:var(--terra)}
+  .type-picker{display:flex;gap:8px}
+  .type-opt{flex:1;padding:10px;border:1px solid var(--line);background:var(--surface);border-radius:2px;cursor:pointer;text-align:center;font-size:12px;transition:all .15s}
+  .type-opt:hover{border-color:var(--ink-3)}
+  .type-opt.active{border-color:var(--ink);background:var(--ink);color:#fff;font-weight:500}
+  .type-opt small{display:block;font-size:10px;opacity:.7;margin-top:2px}
+
+  .items-builder{background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:16px}
+  .items-builder-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+  .items-builder-title{font-family:var(--serif);font-size:13px;font-weight:600}
+  .items-builder-hint{font-size:11px;color:var(--ink-3)}
+  .item-row{display:grid;gap:8px;padding:8px 0;border-bottom:1px dashed var(--line-2);align-items:start}
+  .item-row.t-yearly{grid-template-columns:140px 1.6fr 90px 90px 90px 28px}
+  .item-row.t-single{grid-template-columns:160px 1.8fr 140px 28px}
+  .item-row.t-unified{grid-template-columns:160px 1fr 28px}
+  .item-row:last-child{border-bottom:none}
+  .item-row input,.item-row select{padding:7px 9px;font-size:12.5px}
+  .item-row .x{background:transparent;border:1px solid var(--line);color:var(--ink-3);width:28px;height:32px;border-radius:2px;cursor:pointer;align-self:center}
+  .item-row .x:hover{border-color:var(--danger);color:var(--danger)}
+  .item-hdr{display:grid;gap:8px;padding-bottom:6px;border-bottom:1px solid var(--line);margin-bottom:8px;font-family:var(--serif);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+  .item-hdr.t-yearly{grid-template-columns:140px 1.6fr 90px 90px 90px 28px}
+  .item-hdr.t-single{grid-template-columns:160px 1.8fr 140px 28px}
+  .item-hdr.t-unified{grid-template-columns:160px 1fr 28px}
+  .add-item{margin-top:10px;display:flex;gap:8px}
+  .add-item button{font-family:var(--sans);font-size:12px;padding:7px 14px;background:transparent;border:1px dashed var(--line);color:var(--ink-3);border-radius:2px;cursor:pointer}
+  .add-item button:hover{border-color:var(--ink-3);color:var(--ink)}
+  .add-presets{display:flex;gap:6px;flex-wrap:wrap}
+  .preset-btn{font-size:11px;padding:4px 10px;background:var(--surface-alt);border:1px solid var(--line);color:var(--ink-2);border-radius:99px;cursor:pointer;font-family:var(--sans)}
+  .preset-btn:hover{background:var(--ink);border-color:var(--ink);color:#fff}
+
+  /* GUIDE SECTION */
+  .guide-toggle{display:flex;align-items:center;gap:10px;cursor:pointer;background:transparent;border:none;padding:0;font-family:var(--serif);font-size:18px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+  .guide-toggle:hover{color:var(--bronze)}
+  .guide-arrow{font-family:var(--mono);font-size:14px;transition:transform .2s}
+  .guide-toggle.open .guide-arrow{transform:rotate(90deg)}
+  .guide-body{display:none;margin-top:18px}
+  .guide-body.show{display:block}
+  .guide-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+  .guide-cat-card{background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:16px}
+  .guide-cat-name{font-family:var(--serif);font-size:13px;font-weight:600;letter-spacing:-.01em;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--line);color:var(--ink)}
+  .guide-rules{display:flex;flex-direction:column;gap:8px}
+  .guide-rule{padding:8px 10px;border-radius:2px;border-left:2px solid;font-size:11.5px}
+  .guide-rule[data-sev="warn"]{background:var(--warn-soft);border-color:var(--warn)}
+  .guide-rule[data-sev="info"]{background:var(--info-soft);border-color:var(--info)}
+  .guide-rule[data-sev="tip"]{background:var(--sage-soft);border-color:var(--sage)}
+  .guide-rule-t{font-weight:600;font-size:11.5px;margin-bottom:3px}
+  .guide-rule-b{font-size:11px;color:var(--ink-2);line-height:1.5}
+
+  /* RESPONSIVE */
+  @media (max-width:1100px){
+    .form-layout{grid-template-columns:1fr}
+    .rule-panel{position:static;max-height:none}
+  }
+  @media (max-width:900px){
+    .page{padding:20px 16px 60px}
+    .title{font-size:28px}
+    .header{align-items:flex-start}
+    .header-stats{width:100%;justify-content:space-between}
+    .hstat{text-align:left}
+    .form-grid{grid-template-columns:1fr 1fr;gap:10px}
+    .form-row{grid-template-columns:1fr;gap:10px}
+    .tab{padding:10px 14px;font-size:13px}
+    .etable{font-size:12px}
+    .etable th,.etable td{padding:10px 8px}
+    .e-note{display:none}
+    .dtable{font-size:12px}
+    .dtable th,.dtable td{padding:8px 6px}
+    .section-title{font-size:18px}
+    .pform-grid,.pform-grid.cols-3{grid-template-columns:1fr}
+    .item-row.t-yearly,.item-hdr.t-yearly{grid-template-columns:1fr 1fr;gap:6px}
+    .item-row.t-yearly>*{font-size:12px}
+  }
+  @media (max-width:600px){
+    .form-grid{grid-template-columns:1fr}
+    .toast{bottom:16px;right:16px;left:16px}
+    .list-actions{width:100%}
+    .modal-body{padding:16px}
+    .modal-head,.modal-foot{padding:14px 16px}
+  }
+
+  /* Q&A SECTION */
+  .qa-card{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:24px}
+  .qa-intro{margin-bottom:14px;font-size:13px;color:var(--ink-3);padding-bottom:14px;border-bottom:1px dashed var(--line);line-height:1.6}
+  .qa-intro strong{color:var(--ink-2);font-weight:600}
+  .qa-examples{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+  .qa-chip{font-family:var(--sans);font-size:12px;padding:7px 14px;background:var(--bronze-soft);border:1px solid transparent;color:var(--bronze);border-radius:99px;cursor:pointer;font-weight:500;transition:all .15s}
+  .qa-chip:hover{background:var(--bronze);color:#fff;transform:translateY(-1px)}
+  .qa-input-row{display:flex;gap:8px;align-items:stretch}
+  .qa-input-row input{flex:1;font-size:14px;padding:12px 14px}
+  .qa-input-row button{padding:12px 24px;white-space:nowrap}
+  .qa-input-row button:disabled{opacity:.5;cursor:not-allowed}
+  .qa-history{margin-top:22px;display:flex;flex-direction:column;gap:18px}
+  .qa-item{border-left:3px solid var(--line);padding:0 0 0 16px}
+  .qa-item:first-child{border-color:var(--bronze)}
+  .qa-question{font-family:var(--serif);font-size:14px;font-weight:600;color:var(--ink);margin-bottom:10px;display:flex;align-items:baseline;gap:8px;line-height:1.4}
+  .qa-q-tag{font-family:var(--mono);font-size:10px;color:var(--bronze);font-weight:700;letter-spacing:.05em;flex-shrink:0}
+  .qa-answer{background:var(--surface-alt);padding:14px 16px;border-radius:3px;font-size:13px;line-height:1.7;color:var(--ink-2)}
+  .qa-answer p{margin-bottom:8px}
+  .qa-answer p:last-child{margin-bottom:0}
+  .qa-answer strong{color:var(--ink);font-weight:600}
+  .qa-answer em{font-style:italic;color:var(--ink-3)}
+  .qa-answer ul{margin:8px 0 8px 4px;padding-left:18px}
+  .qa-answer ul li{margin-bottom:4px}
+  .qa-answer.loading{color:var(--ink-4);font-style:italic;background:var(--surface-alt)}
+  .qa-answer.error{background:var(--danger-soft);color:var(--danger);border-left:3px solid var(--danger);padding-left:13px}
+  .qa-loading-dots::after{content:"";animation:qadots 1.4s steps(4,end) infinite;display:inline-block;width:1.5em;text-align:left}
+  @keyframes qadots{0%,20%{content:""}40%{content:"."}60%{content:".."}80%,100%{content:"..."}}
+  .qa-summary{font-size:13px;color:var(--ink);margin-bottom:12px;line-height:1.55;padding:10px 12px;background:var(--surface);border-radius:3px;border-left:3px solid var(--bronze)}
+  .qa-summary strong{color:var(--ink);font-weight:600}
+  .qa-rule-results{display:flex;flex-direction:column;gap:8px}
+  .qa-rule-card{padding:11px 14px;border-radius:3px;border-left:3px solid;background:var(--surface)}
+  .qa-rule-card[data-sev="warn"]{border-color:var(--warn);background:var(--warn-soft)}
+  .qa-rule-card[data-sev="info"]{border-color:var(--info);background:var(--info-soft)}
+  .qa-rule-card[data-sev="tip"]{border-color:var(--sage);background:var(--sage-soft)}
+  .qa-rule-cat{font-family:var(--serif);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:5px;font-weight:600}
+  .qa-rule-head{font-weight:600;font-size:13px;color:var(--ink);margin-bottom:6px;line-height:1.4}
+  .qa-rule-body{font-size:12.5px;color:var(--ink-2);line-height:1.6;margin-bottom:6px}
+  .qa-rule-src{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);letter-spacing:.02em}
+
+  .footnote{margin-top:60px;padding-top:24px;border-top:1px solid var(--line);font-size:11px;color:var(--ink-4);text-align:center;font-family:var(--serif);letter-spacing:.05em}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-left">
+      <div class="kicker">RESEARCH BUDGET LEDGER · 2026</div>
+      <h1 class="title">연구과제 통합 예산관리</h1>
+      <p class="subtitle"><span id="proj-count">3</span>개 과제 · 총예산 <span style="font-family:var(--mono);color:var(--ink)" id="total-budget">92,500,000</span>원</p>
+    </div>
+    <div class="header-stats">
+      <div class="hstat">
+        <div class="hstat-label">집행액</div>
+        <div class="hstat-val" id="total-spent">0원</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-label">잔액</div>
+        <div class="hstat-val muted" id="total-remaining">92,500,000원</div>
+      </div>
+      <div class="hstat">
+        <div class="hstat-label">집행률</div>
+        <div class="hstat-val muted" id="total-pct">0.0%</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- PROJECT CARDS -->
+  <section class="cards" id="cards"></section>
+
+  <!-- ADD EXPENSE -->
+  <section>
+    <div class="section-head">
+      <h2 class="section-title">
+        <span class="section-num">01</span>
+        지출 입력
+      </h2>
+    </div>
+    <div class="form-layout">
+      <div class="form-card" id="form-card">
+        <div class="editing-banner">수정 모드 · 기존 항목을 편집하고 있습니다</div>
+        <form id="expense-form">
+          <div class="form-grid">
+            <div class="field">
+              <span class="field-label">일자 <span class="req">*</span></span>
+              <input type="date" id="f-date" required>
+            </div>
+            <div class="field">
+              <span class="field-label">과제 <span class="req">*</span></span>
+              <select id="f-project" required>
+                <option value="">선택</option>
+              </select>
+            </div>
+            <div class="field">
+              <span class="field-label">비목 <span class="req">*</span></span>
+              <select id="f-category" required disabled>
+                <option value="">먼저 과제 선택</option>
+              </select>
+            </div>
+            <div class="field">
+              <span class="field-label">세목 <span class="req">*</span></span>
+              <select id="f-sub" required disabled>
+                <option value="">먼저 비목 선택</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="field">
+              <span class="field-label">내용 <span class="req">*</span></span>
+              <input type="text" id="f-desc" placeholder="예: 시약 구매, 자문회의 식대, 학회 출장비" required>
+            </div>
+            <div class="field">
+              <span class="field-label">금액 (원) <span class="req">*</span></span>
+              <input type="number" id="f-amount" min="0" step="1" placeholder="0" required>
+            </div>
+          </div>
+          <div class="form-row-single">
+            <div class="field">
+              <span class="field-label">메모 (선택)</span>
+              <input type="text" id="f-note" placeholder="영수증 번호, 거래처 등">
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-ghost" id="cancel-btn" hidden>취소</button>
+            <button type="submit" class="btn btn-primary" id="submit-btn">저장</button>
+          </div>
+        </form>
+      </div>
+
+      <aside class="rule-panel" id="rule-panel">
+        <div class="rule-panel-head">
+          <div class="rule-panel-title">NRF 규정 체크</div>
+          <div class="rule-panel-subtitle">실시간</div>
+        </div>
+        <div id="rule-content">
+          <div class="rule-empty">
+            <div class="rule-empty-icon">⚖</div>
+            비목과 세목을 선택하면<br>해당 항목의 NRF 규정과<br>주의사항이 표시됩니다
+          </div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- Q&A SECTION -->
+  <section>
+    <div class="section-head">
+      <h2 class="section-title">
+        <span class="section-num">02</span>
+        NRF 규정 검색
+        <span class="section-count">키워드 + 동의어 매핑 · 65개 조항 인덱스</span>
+      </h2>
+    </div>
+    <div class="qa-card">
+      <div class="qa-intro">
+        이 연구비로 <strong>특정 항목을 사용해도 되는지</strong> 키워드로 검색하세요.
+        「AI 구독」「해외 학회」「평일 식대」 같은 자연어도 <strong>동의어 50종 매핑</strong>으로 인식해 가장 관련 있는 NRF 규정을 찾아드립니다.
+        근거 문서: 「국가연구개발사업 연구개발비 사용 기준」(2025.3) · 「정부연구비 사용 Q&amp;A 사례집」(2025.6).
+      </div>
+      <div class="qa-examples">
+        <button class="qa-chip" data-q="유료 AI 구독 서비스">유료 AI 구독</button>
+        <button class="qa-chip" data-q="해외 학회 참가비 항공료">해외 학회 참가</button>
+        <button class="qa-chip" data-q="평일 점심 야근 식대">평일 점심 식대</button>
+        <button class="qa-chip" data-q="3천만원 이상 장비 구매 승인">3천만원 이상 장비</button>
+        <button class="qa-chip" data-q="학생인건비 회수 공동관리">학생인건비 회수</button>
+        <button class="qa-chip" data-q="논문게재료 종료 후">종료 후 논문게재료</button>
+        <button class="qa-chip" data-q="동일 연구실 부서 전문가 자문료">동일 연구실 자문료</button>
+        <button class="qa-chip" data-q="모바일 상품권 기프티콘 회의">모바일 상품권</button>
+      </div>
+      <div class="qa-input-row">
+        <input type="text" id="qa-input" placeholder="검색어 입력 (예: AI 구독, 해외 학회, 3천만원 장비)" autocomplete="off">
+        <button class="btn btn-primary" id="qa-submit" type="button">검색</button>
+      </div>
+      <div class="qa-history" id="qa-history"></div>
+    </div>
+  </section>
+
+  <!-- PROJECT DETAIL -->
+  <section>
+    <div class="section-head">
+      <h2 class="section-title">
+        <span class="section-num">03</span>
+        과제 상세
+      </h2>
+    </div>
+    <div class="tabs" id="tabs"></div>
+    <div class="tab-panel" id="tab-panel"></div>
+  </section>
+
+  <!-- EXPENSE LIST -->
+  <section>
+    <div class="section-head">
+      <h2 class="section-title">
+        <span class="section-num">04</span>
+        지출 내역
+        <span class="section-count" id="e-count"></span>
+      </h2>
+      <div class="list-actions">
+        <div class="chips" id="filter-chips"></div>
+        <button class="btn btn-ghost btn-sm" id="export-btn">CSV 내보내기</button>
+      </div>
+    </div>
+    <div id="expense-list"></div>
+  </section>
+
+  <!-- NRF GUIDE -->
+  <section>
+    <button class="guide-toggle" id="guide-toggle">
+      <span class="guide-arrow">▸</span>
+      📖 NRF 정부연구비 비목별 사용 규정 가이드
+    </button>
+    <div class="guide-body" id="guide-body">
+      <p style="margin:12px 0 18px;font-size:12px;color:var(--ink-3);line-height:1.6">
+        한국연구재단 「국가연구개발사업 연구개발비 사용 기준」(2025.3) 및 동 매뉴얼 기준.
+        ⚠️ 필수 준수 · ℹ️ 기준 안내 · 💡 활용 팁
+      </p>
+      <div class="guide-grid" id="guide-grid"></div>
+    </div>
+  </section>
+
+  <div class="footnote">데이터는 이 브라우저에 자동 저장됩니다 · 단위는 모두 원(KRW) · NRF 규정은 2025년 3월 기준</div>
+</div>
+
+<!-- PROJECT MODAL -->
+<div class="modal-bg" id="proj-modal-bg">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="proj-modal-title">과제 추가</div>
+      <button class="modal-close" id="proj-modal-close" type="button">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="pform-grid">
+        <div class="field">
+          <span class="field-label">과제명 <span class="req">*</span></span>
+          <input type="text" id="p-name" placeholder="예: 한국연구재단">
+        </div>
+        <div class="field">
+          <span class="field-label">부제 (선택)</span>
+          <input type="text" id="p-sub" placeholder="예: 마약-우울증 신데믹">
+        </div>
+      </div>
+      <div class="pform-grid cols-3">
+        <div class="field">
+          <span class="field-label">기간 <span class="req">*</span></span>
+          <input type="text" id="p-period" placeholder="예: 2026.06 ~ 2029.05">
+        </div>
+        <div class="field">
+          <span class="field-label">총예산 (원) <span class="req">*</span></span>
+          <input type="number" id="p-budget" min="0" placeholder="0">
+        </div>
+        <div class="field">
+          <span class="field-label">색상</span>
+          <div class="accent-picker" id="accent-picker">
+            <div class="accent-opt" data-c="navy"></div>
+            <div class="accent-opt" data-c="sage"></div>
+            <div class="accent-opt" data-c="bronze"></div>
+            <div class="accent-opt" data-c="plum"></div>
+            <div class="accent-opt" data-c="slate"></div>
+            <div class="accent-opt" data-c="terra"></div>
+          </div>
+        </div>
+      </div>
+      <div class="pform-grid full">
+        <div class="field">
+          <span class="field-label">과제 유형 <span class="req">*</span></span>
+          <div class="type-picker">
+            <div class="type-opt" data-t="yearly">
+              연차형
+              <small>다년 과제 (1·2·3차년도 별 예산)</small>
+            </div>
+            <div class="type-opt" data-t="single">
+              단년형
+              <small>비목·세목별 예산 한도</small>
+            </div>
+            <div class="type-opt" data-t="unified">
+              통합형
+              <small>비목 구분 없음, 통합 예산</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="pform-grid full" id="years-row" style="display:none">
+        <div class="field">
+          <span class="field-label">연차 수</span>
+          <input type="number" id="p-years" min="1" max="10" value="3">
+        </div>
+      </div>
+
+      <div class="items-builder" style="margin-top:18px">
+        <div class="items-builder-head">
+          <span class="items-builder-title">비목/세목 구성</span>
+          <span class="items-builder-hint">NRF 표준 비목 + 세목 자동 추천</span>
+        </div>
+        <div id="item-hdr" class="item-hdr"></div>
+        <div id="items-list"></div>
+        <div class="add-item">
+          <button type="button" id="add-item-btn">+ 항목 추가</button>
+          <div class="add-presets" id="presets">
+            <button type="button" class="preset-btn" data-p="nrf-full">NRF 기본 6개</button>
+            <button type="button" class="preset-btn" data-p="manpower">인건비·학생인건비</button>
+            <button type="button" class="preset-btn" data-p="research">연구재료·활동·수당</button>
+            <button type="button" class="preset-btn" data-p="clear">전체 삭제</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <div class="modal-foot-left">
+        <button type="button" class="btn btn-danger" id="p-delete-btn" hidden>삭제</button>
+      </div>
+      <div class="modal-foot-right">
+        <button type="button" class="btn btn-ghost" id="p-cancel-btn">취소</button>
+        <button type="button" class="btn btn-primary" id="p-save-btn">저장</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================================================================
+// STORAGE POLYFILL — Claude.ai 아티팩트 환경에서는 window.storage 사용,
+// 일반 브라우저(Netlify 등)에서는 localStorage로 자동 대체
+// ==================================================================
+if (typeof window.storage === 'undefined') {
+  window.storage = {
+    async get(key) {
+      const v = localStorage.getItem(key);
+      return v === null ? null : { key, value: v, shared: false };
+    },
+    async set(key, value) {
+      localStorage.setItem(key, String(value));
+      return { key, value, shared: false };
+    },
+    async delete(key) {
+      const existed = localStorage.getItem(key) !== null;
+      localStorage.removeItem(key);
+      return { key, deleted: existed, shared: false };
+    },
+    async list(prefix = '') {
+      const keys = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith(prefix)) keys.push(k);
+      }
+      return { keys, prefix, shared: false };
+    }
+  };
+}
+
+// ==================================================================
+// NRF STANDARD CATEGORIES & SUBCATEGORIES
+// ==================================================================
+const NRF_CATS = [
+  '인건비', '학생인건비', '연구시설·장비비', '연구재료비',
+  '연구활동비', '연구수당', '보안수당', '위탁연구개발비',
+  '간접비', '여비', '운영비', '업무추진비', '통합', '직접비'
+];
+
+const NRF_SUBS = {
+  '인건비': ['내부인건비','외부인건비','연구근접지원인력인건비','미지급인건비','일용임금'],
+  '학생인건비': ['학생인건비'],
+  '연구시설·장비비': ['연구시설·장비 구입·설치비','연구시설·장비 임차비','연구시설·장비 운영·유지비','연구인프라 조성비'],
+  '연구재료비': ['연구재료 구입비','연구개발과제 관리비','연구재료 제작비'],
+  '연구활동비': [
+    '지식재산 창출 활동비','기술도입비','전문가활용비','연구개발서비스 활용비',
+    '회의장 임차료','속기료·통역료','회의비','회의·세미나 개최비',
+    '국내출장여비','국외출장여비','소프트웨어 활용비','연구실 운영비','사무용품·재료비',
+    '국내외 교육훈련비','학회 및 세미나 참가비','야근·특근 식대',
+    '해외연구자 유치 지원비','종합사업관리비','클라우드컴퓨팅 서비스 이용료',
+    '문헌구입비','논문게재료','인쇄·복사·인화비','슬라이드 제작비',
+    '세금 및 공과금','우편요금·택배비','수수료·공공요금','일용직 활용비',
+    '원고료','정책연구비','교재 인쇄비','자문비·멘토링비·특강비','파일럿 운영비',
+  ],
+  '연구수당': ['연구수당'],
+  '보안수당': ['보안수당'],
+  '위탁연구개발비': ['위탁연구개발비'],
+  '간접비': ['인력지원비','연구지원비','성과활용지원비','연구실안전관리비'],
+  '직접비': ['연구시설·장비비','연구재료비','연구활동비','연구수당'],
+  '여비': ['국내출장여비','국외출장여비'],
+  '운영비': ['자문비·멘토링비·특강비','원고료','정책연구비','교재 인쇄비','사무용품·재료비','파일럿 운영비'],
+  '업무추진비': ['회의비'],
+  '통합': ['여비','회의비','사무용품비','운영비','기타'],
+};
+
+// ==================================================================
+// NRF RULES DATABASE (한국연구재단 정부연구비 사용 Q&A 사례집 2025.6 기준)
+// ==================================================================
+const RULES = [
+  // 공통 (cat='*')
+  {cat:'*', sev:'warn', t:'직접 관련성 원칙', b:'연구개발비는 해당 연구과제 수행과 연구목적 달성 용도로만 사용. 사무(私務)와 공무(公務)를 명확히 구분.', s:'혁신법 제13조 ③항'},
+  {cat:'*', sev:'warn', t:'사용기간 준수', b:'총연구개발기간(단계) 동안에만 사용. 단, 보고서 발간·평가비, 정산수수료, 공공요금, 제세공과금, 연구수당, 종료일 이전 지출원인행위한 금액은 사용실적 보고일까지 가능.', s:'사용기준 제22조 ④항'},
+  {cat:'*', sev:'warn', t:'환급세금·유흥성 비용 불가', b:'환급 가능한 관세, 부가가치세 등은 계상 불가 (실제 환급받지 않더라도). 주류 등 유흥성 비용 불가.', s:'사용기준 제21조'},
+  {cat:'*', sev:'warn', t:'중복계상 금지', b:'동일 비용을 ① 2회 이상, ② 현금/현물, ③ 직접비/간접비로 중복 계상 불가. ④ 동일인 인건비/학생인건비 동일 기간 중복 불가(신분 변동 제외).', s:'사용기준 제21조'},
+  {cat:'*', sev:'warn', t:'내부거래 금지', b:'연구개발기관 내부 및 동일과제 참여기관 간 거래 계상 불가. 단, 비영리기관 공동활용 시설·장비, 시험·검사·분석비 등은 예외.', s:'사용기준 제21조'},
+  {cat:'*', sev:'info', t:'카드 또는 계좌이체 사용', b:'직접비는 연구개발비카드 또는 계좌이체로 집행. 외국 물품 수입 등 예외 시에만 지폐/주화 사용 가능.', s:'사용기준 제22조 ⑤항'},
+  {cat:'*', sev:'info', t:'증명자료 구비', b:'결의서, 영수증서(카드매출전표, 계좌이체확인서, 세금계산서 등) 구비. 증명자료는 종료 후 5년 보관.', s:'사용기준 제22조, 제72조'},
+  {cat:'*', sev:'tip', t:'단계 간 직접비 이월', b:'단계 종료 시 직접비(현물·연구수당 제외)는 사전 승인 시 다음 단계 이월 가능. 연구수당은 이월 불가.', s:'사용기준 제73조'},
+
+  // 인건비
+  {cat:'인건비', sev:'warn', t:'대학 월 100% / 출연연 연 130% 한도', b:'대학 등 비영리기관 참여연구자 총인건비계상률 월 100% 이내. 정부출연기관(정부수탁사업)은 연 130% 이내.', s:'사용기준 제48조 ⑤항'},
+  {cat:'인건비', sev:'info', t:'4대보험·퇴직금 별도', b:'인건비계상률 산정 시 4대보험 기관부담금, 퇴직급여충당금 제외. 별도로 계상·지급.', s:'사용기준 제48조 ③항'},
+  {cat:'인건비', sev:'warn', t:'전임교원 현금 계상 불가', b:'대학 소속 총장·학장·교수·부교수·조교수, 직장가입자 강사, 공무원, 영리기관 임직원은 현금 인건비 계상 불가. 직장가입자 아닌 강사·겸임교원·초빙교원은 가능.', s:'사용기준 제48조 ④항'},
+  {cat:'인건비', sev:'tip', t:'3책5공 + 인건비 0%', b:'동시수행 연구개발과제 수 제한기준(3책5공) 범위 내에서 인건비계상률 0%로도 과제 참여 가능. 통합관리시스템에 0% 입력 필수.', s:'사용기준 제48조'},
+  {cat:'인건비', sev:'info', t:'겸직 시 양 기관 합산 관리', b:'복수 기관에서 근로계약 체결 시 양 기관에서 지급받는 급여 총액 합산하여 인건비계상률 관리. 양 기관에 통보 의무.', s:'사용기준 제48조 ⑧항'},
+  {cat:'인건비', sub:'연구근접지원인력인건비', sev:'warn', t:'직접비/간접비 중복·분할 금지', b:'연구근접지원인력 인건비는 직접비와 간접비로 중복·분할·교차 계상 불가. 연구근접지원인력은 참여연구자가 아니므로 연구수당 지급 불가.', s:'사용기준 제48조 ⑦항'},
+  {cat:'인건비', sev:'info', t:'육아휴직 기간 4대보험·퇴직금', b:'육아휴직 기간 동안 4대보험 기관부담금 및 퇴직급여충당금은 간접비(인력지원비)로 계상 가능.', s:'사용기준 제15조 ⑤항'},
+
+  // 학생인건비
+  {cat:'학생인건비', sev:'warn', t:'학위과정별 최소 기준', b:'학사 월 130만원, 석사 220만원, 박사 300만원 이상 기관 자율 설정. 학과·연구실·연구책임자별 별도 기준 둘 수 없음.', s:'사용기준 제40조 ④항'},
+  {cat:'학생인건비', sev:'warn', t:'월 100% 한도', b:'학생연구자 총인건비계상률 월 100% 초과 불가. BK21 등 고등교육재정지원, 인문사회 학술지원, 강사·겸임교원 인건비, 근로/사업소득은 산정에서 제외.', s:'사용기준 제40조 ⑤항'},
+  {cat:'학생인건비', sev:'warn', t:'10% 이상 관리', b:'연구개발기관장은 학생연구자별 학생인건비 합이 학위과정별 기준 금액의 10% 이상이 되도록 관리(타 기관 합산하여 90% 초과 시 예외).', s:'사용기준 제40조 ⑩항'},
+  {cat:'학생인건비', sev:'warn', t:'회수·공동관리 금지', b:'개인별로 지급된 학생인건비를 회수하거나 다른 용도로 사용 불가. 공동관리 절대 금지.', s:'사용기준 제33조'},
+  {cat:'학생인건비', sev:'info', t:'학기/학년 단위 3자 협약', b:'기관장 ↔ 연구책임자 ↔ 학생연구자 3자 간 연구참여확약서를 학기 또는 학년 단위로 작성.', s:'사용기준 제40조 ②항'},
+  {cat:'학생인건비', sev:'tip', t:'졸업~상위과정 공백 지급', b:'졸업하여 상위 학위과정 진학 확정 시 첫 학기 시작 전까지 학생인건비 지급 가능 (합격통지서·입학예정서 등 증빙).', s:'시행령 별표2, Q14'},
+  {cat:'학생인건비', sev:'info', t:'박사후 연구자는 인건비', b:'박사후 연구자는 학생인건비가 아닌 인건비로 지급.', s:'혁신법 매뉴얼'},
+
+  // 연구시설·장비비
+  {cat:'연구시설·장비비', sev:'warn', t:'3천만원 이상 사전 승인', b:'3천만원 이상(부가세 포함) 시설·장비 구매·임차 시 사전 승인 필요. 3천만~1억 미만은 연구개발과제평가단, 1억 이상은 국가연구시설·장비심의위원회.', s:'사용기준 제73조 ①항 5호'},
+  {cat:'연구시설·장비비', sev:'info', t:'도입 기한', b:'원칙: 최종(단계)종료 2개월 전까지 검수완료. 긴급상황(중앙행정기관 인정): 1개월 전까지. 시설·장비구축과제: 종료일까지.', s:'사용기준 제23조 ⑤항'},
+  {cat:'연구시설·장비비', sev:'info', t:'ZEUS 30일 내 등록', b:'취득 후 30일 이내 연구시설장비종합정보시스템(ZEUS)에 등록하고 국가연구시설장비정보등록증 부착.', s:'사용기준 제23조'},
+  {cat:'연구시설·장비비', sev:'warn', t:'내부공간 임차료 불가', b:'원래 연구개발계획서에 반영되지 않은 내부 보유 연구시설·장비·공간 및 외부 연구공간 임차료 사용 불가 (중앙행정기관 인정 시 예외).', s:'사용기준 제21조 ④항 7호'},
+  {cat:'연구시설·장비비', sev:'info', t:'지체상금·환차익 제외', b:'구입처로부터 받은 지체상금, 계약이행보증금, 카드 취소금액, 환차익 등은 연구개발비 사용금액에서 제외.', s:'혁신법 매뉴얼 p.211'},
+  {cat:'연구시설·장비비', sub:'연구시설·장비 운영·유지비', sev:'tip', t:'3천만원 이상 수리비', b:'장비 수리비는 사전 승인 대상이 아님. 단, 수리비가 고가인 경우 구매 vs 수리 타당성 검토 권장.', s:'Q29'},
+
+  // 연구재료비
+  {cat:'연구재료비', sev:'info', t:'종료일까지 구매 가능', b:'연구재료는 최종(단계) 연구종료일까지 구매(검수완료) 가능. 종료 임박 구매는 직접 관련성 유의.', s:'사용기준 제22조 ④항'},
+  {cat:'연구재료비', sev:'warn', t:'구매·검수 의무', b:'구매 금액과 무관하게 자체규정에 따라 구매 후 검수 의무. 소액(예: 100만원 이하)은 검수절차 간소화 가능(거래명세서 날인 등).', s:'사용기준 제22조 ③항'},
+  {cat:'연구재료비', sev:'warn', t:'단계 간 분할 불가', b:'연구재료비는 단계 간 분할하여 일부 선금/잔금 분리 집행 불가. 각 단계 내에서 구매·검수 완료해야 함.', s:'사용기준 제22조, Q36'},
+
+  // 연구활동비
+  {cat:'연구활동비', sev:'warn', t:'외부 전문기술 활용비 40% 한도', b:'기술도입비, 전문가활용비(원고료·강사료·자문료 포함), 연구개발서비스활용비 합계가 직접비(현물 포함)의 40% 이내. 중앙행정기관 인정 시 초과 가능.', s:'사용기준 제25조 ②항'},
+  {cat:'연구활동비', sub:'전문가활용비', sev:'warn', t:'동일 부서 지급 불가', b:'참여연구자와 동일 부서(대학은 연구실, 출연연은 직제규정상 최소단위부서) 소속자에게 전문가활용비 지급 불가.', s:'사용기준 제50조 ①항'},
+  {cat:'연구활동비', sub:'전문가활용비', sev:'tip', t:'장기 자문 가능', b:'동일 전문가에게 매월 자문료 지급 가능. 단, 명확한 자문 내역과 증명자료 필요.', s:'Q61'},
+  {cat:'연구활동비', sub:'회의비', sev:'warn', t:'회의비 식비 사전 결재 필수', b:'회의비 중 식비는 ① 다른 연구개발기관 소속자가 참여하고 ② 사전 내부결재가 완료된 회의에 한해 계상 가능. (2024.12.1.부터 시행)', s:'사용기준 제25조 ④항'},
+  {cat:'연구활동비', sub:'회의비', sev:'tip', t:'회의록 요건', b:'사전 결재문서와 실제 회의 내용이 동일하면 회의록 별도 작성 생략 가능. 참석자 전원 서명 날인 불필요.', s:'혁신법 매뉴얼 p.222'},
+  {cat:'연구활동비', sub:'회의비', sev:'warn', t:'모바일 상품권 지급 불가', b:'화상회의 후 참석자에게 모바일 상품권(기프티콘, 문화상품권 등) 지급 불가.', s:'Q55'},
+  {cat:'연구활동비', sub:'국내출장여비', sev:'info', t:'여비 산정 기준', b:'공무원은 「공무원 여비 규정」, 비공무원은 자체규정 또는 공무원 여비 규정 중 큰 금액 적용. 출장지에서 식대 제공 시 차감.', s:'사용기준 제25조 ⑥항'},
+  {cat:'연구활동비', sub:'국외출장여비', sev:'info', t:'국외출장 증빙', b:'국외출장 시 출장계획서, 출장결과보고서, 출입국 사실확인 가능 서류(여권사본, 출입국사실증명서) 필수.', s:'사용기준 제25조 ⑧항'},
+  {cat:'연구활동비', sub:'소프트웨어 활용비', sev:'info', t:'계약 기한', b:'최종(단계)종료일 2개월 전까지 사용계약 체결. 긴급상황 시 1개월 전까지. 사용계약기간이 연구기간을 초과해도 최소단위 소명 시 전액 계상 가능.', s:'사용기준 제25조 ⑨,⑩항'},
+  {cat:'연구활동비', sub:'학회 및 세미나 참가비', sev:'info', t:'학회 연회비 (1년)', b:'연구과제 관련 학회의 경우 연회비(1년) 대상 기간이 연구기간 전·후 포함 인정. 단, 연회비 사용일은 연구기간 내. 종신 학회비 불가.', s:'혁신법 매뉴얼 p.219'},
+  {cat:'연구활동비', sub:'학회 및 세미나 참가비', sev:'warn', t:'환급 가능 교육비 불가', b:'근로자직업능력개발법, 고용보험법에 따라 환급 가능한 교육비는 환급 신청 후 환급액만큼 차감. 미환급 시 해당 금액 불인정.', s:'사용기준 제25조'},
+  {cat:'연구활동비', sub:'논문게재료', sev:'tip', t:'종료 후 2년까지 가능', b:'논문게재료·저술출판비용은 중앙행정기관 인정 시 연구개발기간 종료 후 2년까지 사용 가능. 사사 표기 여부와 무관하게 직접 관련된 경우 사용 가능.', s:'사용기준 제22조 ④항'},
+  {cat:'연구활동비', sub:'연구실 운영비', sev:'info', t:'사무용기기 종료 전까지', b:'사무용기기·사무용 소프트웨어는 최종(단계)종료 전까지 구입 가능. (영리기관은 별지4호 서식 첨부 시)', s:'혁신법 매뉴얼 p.225'},
+  {cat:'연구활동비', sub:'야근·특근 식대', sev:'warn', t:'평일 점심·중복 식대 불가', b:'평일 점심 또는 출장비 중 식비가 포함된 출장일의 참여연구자·연구근접지원인력 식대는 추가 지급 불가.', s:'사용기준 제25조'},
+  {cat:'연구활동비', sub:'일용직 활용비', sev:'info', t:'단가 기준', b:'연구개발기관 자체규정 따름. 자체규정 미비 시 최저시급 준수, 중소기업중앙회 단순노무종사원 노임단가 참조.', s:'Q71'},
+  {cat:'연구활동비', sev:'tip', t:'유료 생성형 AI 활용 가능', b:'연구과제와 직접 관련된 경우 유료 생성형 AI는 소프트웨어 활용비로 사용 가능. 기관 계정 생성·내부결재 필수.', s:'Q47'},
+  {cat:'연구활동비', sub:'국내외 교육훈련비', sev:'tip', t:'사전 현금 입금 가능', b:'교육비 사전 현금 입금 가능. 단, 이수증·전자(세금)계산서 등 증빙 미발급 시 반납.', s:'Q64'},
+
+  // 연구수당
+  {cat:'연구수당', sev:'warn', t:'수정인건비 20% 한도', b:'수정인건비[인건비(현물 포함) + 학생인건비 + 미지급인건비]의 20% 범위 내 계상. 협약 시점(단계 시작 시점) 금액보다 증액 불가.', s:'사용기준 제26조 ①,②항'},
+  {cat:'연구수당', sev:'warn', t:'1인 70% 한도', b:'참여연구자 2명 이상 시 한 명에게 연구수당 계상액의 70% 초과 지급 불가. 단, 연구책임자 1인만 참여하는 경우 100% 가능.', s:'사용기준 제26조 ⑤항'},
+  {cat:'연구수당', sev:'warn', t:'다음 단계 이월 불가', b:'연구수당 사용잔액은 다음 단계로 이월 불가.', s:'혁신법 매뉴얼 p.230'},
+  {cat:'연구수당', sev:'warn', t:'연구근접지원인력 제외', b:'비영리법인 연구부서 연구근접지원인력에게 연구수당 지급 불가.', s:'혁신법 매뉴얼 p.232'},
+  {cat:'연구수당', sev:'warn', t:'회수·공동관리 금지', b:'연구수당은 참여연구자(연구책임자 포함)가 회수하여 공동 관리 불가.', s:'사용기준 제33조'},
+  {cat:'연구수당', sev:'info', t:'기여도 평가 의무', b:'연구개발기관장은 참여연구자 전부 대상 기여도 평가 등 합리적 지급 기준 마련 의무.', s:'사용기준 제26조 ④항'},
+  {cat:'연구수당', sev:'warn', t:'직접비 사용비율 격차 회수', b:'연구수당 지급비율이 직접비 사용비율을 20%포인트 초과 시 회수: [연구수당 지급액 × (지급비율 - 사용비율 - 20/100)]', s:'사용기준 제26조 ⑦항'},
+
+  // 보안수당
+  {cat:'보안수당', sev:'info', t:'인건비 3% 한도', b:'보안과제 수행 참여연구자 및 연구근접지원인력별 해당 과제 인건비의 3% 범위 내 계상.', s:'사용기준 제26조의2'},
+  {cat:'보안수당', sev:'tip', t:'평가 불필요', b:'보안수당은 별도 기여도 평가를 필요로 하지 않음. 지급신청서·계좌이체증명만 구비.', s:'Q77'},
+
+  // 위탁연구개발비
+  {cat:'위탁연구개발비', sev:'warn', t:'직접비 40% 한도', b:'직접비(위탁/국제공동/연구개발부담비 제외)의 40% 범위 내 계상.', s:'사용기준 제27조 ①항'},
+  {cat:'위탁연구개발비', sev:'warn', t:'20% 이상 증액 사전 승인', b:'원래계획보다 20% 이상 증액 시 중앙행정기관(전문기관) 사전 승인 필요.', s:'사용기준 제27조 ③항'},
+  {cat:'위탁연구개발비', sev:'info', t:'부가세 처리', b:'위탁연구개발과제 수행 부가세는 연구활동비 중 「그 밖의 비용」(매출세액)으로 처리. 「부가가치세법 시행규칙」 제32조 면제 대상 검토 필요.', s:'Q80, Q81'},
+
+  // 간접비
+  {cat:'간접비', sev:'warn', t:'환급세금 계상 불가', b:'환급 가능한 세금 등은 직접비/간접비 모두 계상 불가.', s:'사용기준 제21조'},
+  {cat:'간접비', sev:'tip', t:'연구실 폐기물 처리비', b:'연구실 폐기물 처리비는 간접비(연구실안전관리비)에서 사용. 인건비 총액의 1% 이상(대학 등) 계상 의무.', s:'Q83, 사용기준 제31조'},
+  {cat:'간접비', sev:'tip', t:'특허 출원·등록·유지비', b:'지식재산권의 출원·등록·유지 비용은 간접비(성과활용지원비)에서 사용 가능.', s:'사용기준 제17조'},
+  {cat:'간접비', sev:'info', t:'비영리 통합관리 가능', b:'비영리기관은 간접비 통합관리 가능. 연구개발기간 내 흡수 필수(이후 흡수 시 회수). 영리기관은 통합관리 불가, 잔액 반납.', s:'혁신법 매뉴얼 p.242'},
+  {cat:'간접비', sev:'info', t:'영리기관 고시비율 10%', b:'영리기관의 간접비고시비율은 10%.', s:'사용기준 제114조 ④항'},
+];
+
+// ==================================================================
+// DEFAULT PROJECTS (first-load seed)
+// ==================================================================
+const DEFAULT_PROJECTS = [
+  {
+    id:'p1', name:'한국연구재단', subtitle:'마약-우울증 신데믹', period:'2026.06 ~ 2029.05',
+    totalBudget:60000000, accent:'navy', type:'yearly',
+    years:[
+      {label:'1차년도', start:'2026-06-01', end:'2027-05-31'},
+      {label:'2차년도', start:'2027-06-01', end:'2028-05-31'},
+      {label:'3차년도', start:'2028-06-01', end:'2029-05-31'},
+    ],
+    items:[
+      {cat:'인건비', sub:'내부인건비', budgets:[0,0,0], note:'미지급 30%'},
+      {cat:'학생인건비', sub:'학생인건비', budgets:[9600000,9600000,9600000]},
+      {cat:'연구시설·장비비', sub:'연구시설·장비 구입·설치비', budgets:[3000000,0,0]},
+      {cat:'연구재료비', sub:'연구재료 구입비', budgets:[1000000,1000000,500000]},
+      {cat:'연구활동비', sub:'연구활동비', budgets:[2800000,5800000,6300000]},
+      {cat:'연구수당', sub:'연구수당', budgets:[3600000,3600000,3600000]},
+    ]
+  },
+  {
+    id:'p2', name:'글로컬리빙랩', subtitle:'', period:'2026.05 ~ 2027.02',
+    totalBudget:30000000, accent:'sage', type:'single',
+    items:[
+      {cat:'인건비', sub:'일용임금', budget:11680000, note:'석사 4명×25일, 학사 2명×19일'},
+      {cat:'여비', sub:'국내출장여비', budget:2700000, note:'현장답사·면담·학회 출장'},
+      {cat:'운영비', sub:'자문비·멘토링비·특강비', budget:3720000, note:'전문가 자문·멘토링·파일럿 특강'},
+      {cat:'운영비', sub:'원고료', budget:4000000, note:'외부 전문가 교과목 교안 집필'},
+      {cat:'운영비', sub:'정책연구비', budget:1500000, note:'본교 교직원 신규 교과목 개발'},
+      {cat:'운영비', sub:'교재 인쇄비', budget:1000000, note:'교안·실습교재 인쇄·제본'},
+      {cat:'운영비', sub:'사무용품·재료비', budget:1700000, note:'조사장비 소모품, 보고서 인쇄'},
+      {cat:'운영비', sub:'파일럿 운영비', budget:1000000, note:'「농업 계획 및 관리」 6주 운영'},
+      {cat:'업무추진비', sub:'회의비', budget:2700000, note:'운영회의·간담회·성과공유회'},
+    ]
+  },
+  {
+    id:'p3', name:'대전교육청', subtitle:'비목 구분 없이 통합 집행', period:'2026',
+    totalBudget:2500000, accent:'bronze', type:'unified',
+    items:[
+      {cat:'통합', sub:'여비'},
+      {cat:'통합', sub:'회의비'},
+      {cat:'통합', sub:'사무용품비'},
+    ]
+  }
+];
+
+// ==================================================================
+// STATE & STORAGE
+// ==================================================================
+const KEY_PROJECTS = 'budget_projects_v2';
+const KEY_EXPENSES = 'budget_expenses_v1';
+
+let projects = [];
+let expenses = [];
+let editingId = null;
+let activeTab = null;
+let activeFilter = 'all';
+let editingProjectId = null;
+let projModalState = { accent:'navy', type:'yearly', items:[] };
+
+// ==================================================================
+// HELPERS
+// ==================================================================
+const fmt = n => (n == null) ? '-' : Math.round(n).toLocaleString('ko-KR');
+const fmtWon = n => fmt(n) + '원';
+const fmtPct = n => (isFinite(n) ? (n*100).toFixed(1) : '0.0') + '%';
+const todayISO = () => new Date().toISOString().slice(0,10);
+const uid = () => 'e_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+const pid = () => 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2,5);
+
+function getProject(id){ return projects.find(p => p.id === id); }
+
+function computeYearsFromPeriod(period, count){
+  // try to parse "2026.06 ~ 2029.05" or "2026.6~2029.5" etc.
+  const m = period && period.match(/(\d{4})\.?(\d{1,2})?\s*[~\-–]\s*(\d{4})\.?(\d{1,2})?/);
+  if (!m) {
+    // fallback: count years from today
+    const y = new Date().getFullYear();
+    return Array.from({length:count}, (_,i) => ({
+      label: `${i+1}차년도`,
+      start: `${y+i}-01-01`,
+      end: `${y+i}-12-31`
+    }));
+  }
+  const sy = parseInt(m[1]), sm = parseInt(m[2]||'1');
+  const arr = [];
+  for (let i=0; i<count; i++){
+    const yStart = sy + i;
+    const yEnd = sy + i + 1;
+    const startDate = `${yStart}-${String(sm).padStart(2,'0')}-01`;
+    let endMonth = sm - 1;
+    let endYear = yEnd;
+    if (endMonth === 0) { endMonth = 12; endYear = yEnd - 1; }
+    const lastDay = new Date(endYear, endMonth, 0).getDate();
+    const endDate = `${endYear}-${String(endMonth).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`;
+    arr.push({ label:`${i+1}차년도`, start:startDate, end:endDate });
+  }
+  return arr;
+}
+
+function getSpentForProject(pid){
+  return expenses.filter(e => e.projectId === pid).reduce((s,e) => s+e.amount, 0);
+}
+function getSpentForItem(pid, sub){
+  return expenses.filter(e => e.projectId === pid && e.subcategory === sub).reduce((s,e) => s+e.amount, 0);
+}
+function getYearIndex(pid, dateStr){
+  const p = getProject(pid);
+  if (!p || p.type !== 'yearly' || !p.years) return -1;
+  for (let i=0; i<p.years.length; i++){
+    if (dateStr >= p.years[i].start && dateStr <= p.years[i].end) return i;
+  }
+  return -1;
+}
+function itemBudgetTotal(item){
+  if (item.budgets) return item.budgets.reduce((s,v) => s+(v||0), 0);
+  return item.budget ?? 0;
+}
+function getCategoriesForProject(pid){
+  const p = getProject(pid);
+  if (!p) return [];
+  return [...new Set(p.items.map(i => i.cat))];
+}
+function getSubsForCategory(pid, cat){
+  const p = getProject(pid);
+  if (!p) return [];
+  return p.items.filter(i => i.cat === cat).map(i => i.sub);
+}
+
+// ==================================================================
+// STORAGE
+// ==================================================================
+async function loadAll(){
+  try {
+    const r = await window.storage.get(KEY_PROJECTS);
+    if (r && r.value) projects = JSON.parse(r.value);
+  } catch(e) { /* not found */ }
+  if (!projects || projects.length === 0) {
+    projects = JSON.parse(JSON.stringify(DEFAULT_PROJECTS));
+    await saveProjects();
+  }
+  try {
+    const r = await window.storage.get(KEY_EXPENSES);
+    if (r && r.value) expenses = JSON.parse(r.value);
+  } catch(e) { expenses = []; }
+  if (!activeTab && projects.length > 0) activeTab = projects[0].id;
+}
+async function saveProjects(){
+  try { await window.storage.set(KEY_PROJECTS, JSON.stringify(projects)); }
+  catch(e) { showToast('과제 저장 실패: ' + e.message, true); }
+}
+async function saveExpenses(){
+  try { await window.storage.set(KEY_EXPENSES, JSON.stringify(expenses)); }
+  catch(e) { showToast('지출 저장 실패: ' + e.message, true); }
+}
+
+// ==================================================================
+// RULE PANEL
+// ==================================================================
+function getRulesFor(cat, sub){
+  // global rules (cat='*') + category rules + subcategory rules
+  return RULES.filter(r => {
+    if (r.cat === '*') return true;
+    if (r.cat === cat && !r.sub) return true;
+    if (r.cat === cat && r.sub === sub) return true;
+    return false;
+  });
+}
+function renderRulePanel(cat, sub){
+  const c = document.getElementById('rule-content');
+  if (!cat) {
+    c.innerHTML = '<div class="rule-empty"><div class="rule-empty-icon">⚖</div>비목과 세목을 선택하면<br>해당 항목의 NRF 규정과<br>주의사항이 표시됩니다</div>';
+    return;
+  }
+  const rules = getRulesFor(cat, sub);
+  if (rules.length === 0) {
+    c.innerHTML = '<div class="rule-empty"><div class="rule-empty-icon">∅</div>이 비목/세목에 등록된<br>NRF 규정이 없습니다.<br>일반 사용 원칙을 따르세요.</div>';
+    return;
+  }
+  const icon = sev => sev==='warn' ? '⚠️' : (sev==='tip' ? '💡' : 'ℹ️');
+  c.innerHTML = '<div class="rule-list">' + rules.map(r => `
+    <div class="rule-item" data-sev="${r.sev}">
+      <div class="rule-head"><span class="rule-icon">${icon(r.sev)}</span>${escapeHTML(r.t)}</div>
+      <div class="rule-body">${escapeHTML(r.b)}</div>
+      <div class="rule-src">${escapeHTML(r.s)}</div>
+    </div>
+  `).join('') + '</div>';
+}
+
+// ==================================================================
+// RENDER: HEADER & CARDS
+// ==================================================================
+function renderHeader(){
+  const totalBudget = projects.reduce((s,p) => s+p.totalBudget, 0);
+  const totalSpent = expenses.reduce((s,e) => s+e.amount, 0);
+  const totalRem = totalBudget - totalSpent;
+  document.getElementById('proj-count').textContent = projects.length;
+  document.getElementById('total-budget').textContent = fmt(totalBudget);
+  document.getElementById('total-spent').textContent = fmtWon(totalSpent);
+  document.getElementById('total-remaining').textContent = fmtWon(totalRem);
+  document.getElementById('total-pct').textContent = totalBudget ? fmtPct(totalSpent/totalBudget) : '0.0%';
+}
+
+function renderCards(){
+  const container = document.getElementById('cards');
+  const cards = projects.map((p, i) => {
+    const spent = getSpentForProject(p.id);
+    const rem = p.totalBudget - spent;
+    const pct = p.totalBudget ? (spent/p.totalBudget*100) : 0;
+    const pctCapped = Math.min(pct, 100);
+    return `
+      <div class="card" data-accent="${p.accent}" data-pid="${p.id}">
+        <div class="card-accent"></div>
+        <button class="card-edit" data-edit="${p.id}" title="과제 편집">✎</button>
+        <div class="card-tag">Project · ${String(i+1).padStart(2,'0')}</div>
+        <div class="card-name">${escapeHTML(p.name)}</div>
+        <div class="card-sub">${escapeHTML(p.subtitle || '')||'&nbsp;'}</div>
+        <div class="card-period">${escapeHTML(p.period)}</div>
+        <div class="card-row">
+          <span class="card-row-label">총예산</span>
+          <span class="card-budget">${fmt(p.totalBudget)}<span class="card-budget-unit">원</span></span>
+        </div>
+        <div class="card-row"><span class="card-row-label">집행</span><span class="card-row-val">${fmt(spent)}원</span></div>
+        <div class="card-row"><span class="card-row-label">잔액</span><span class="card-row-val">${fmt(rem)}원</span></div>
+        <div class="card-progress">
+          <div class="card-bar"><div class="card-bar-fill" style="width:${pctCapped}%"></div></div>
+          <div class="card-pct"><span>집행률</span><span>${pct.toFixed(1)}%</span></div>
+        </div>
+      </div>`;
+  }).join('');
+  container.innerHTML = cards + `
+    <div class="card-add" id="add-proj-card">
+      <div class="card-add-icon">+</div>
+      <div class="card-add-text">과제 추가</div>
+    </div>`;
+}
+
+// ==================================================================
+// RENDER: TABS & DETAIL
+// ==================================================================
+function renderTabs(){
+  const tabsEl = document.getElementById('tabs');
+  if (projects.length === 0) {
+    tabsEl.innerHTML = '<div style="padding:20px;color:var(--ink-3);font-size:13px">등록된 과제가 없습니다. 상단에서 과제를 추가하세요.</div>';
+    document.getElementById('tab-panel').innerHTML = '';
+    return;
+  }
+  if (!activeTab || !projects.find(p => p.id === activeTab)) activeTab = projects[0].id;
+  tabsEl.innerHTML = projects.map((p,i) => `
+    <button class="tab ${p.id===activeTab?'active':''}" data-tab="${p.id}">
+      <span class="tab-num">${String(i+1).padStart(2,'0')}</span>${escapeHTML(p.name)}
+    </button>
+  `).join('');
+}
+
+function renderDetail(){
+  const p = getProject(activeTab);
+  const panel = document.getElementById('tab-panel');
+  if (!p) { panel.innerHTML = ''; return; }
+
+  const spent = getSpentForProject(p.id);
+  const remaining = p.totalBudget - spent;
+  const pct = p.totalBudget ? (spent/p.totalBudget) : 0;
+  let tableHTML = '';
+
+  if (p.type === 'yearly') {
+    const years = p.years || [];
+    const yearCount = years.length;
+    let totals = Array(yearCount+3).fill(0);
+    let rows = '';
+    let prevCat = '';
+    p.items.forEach(item => {
+      const total = itemBudgetTotal(item);
+      const itemSpent = getSpentForItem(p.id, item.sub);
+      const itemRem = total - itemSpent;
+      const itemPct = total ? itemSpent/total : 0;
+      const showCat = item.cat !== prevCat;
+      prevCat = item.cat;
+      const budgets = item.budgets || Array(yearCount).fill(0);
+      const yearCells = budgets.slice(0,yearCount).map((b,i) => {
+        totals[i] += (b||0);
+        return `<td class="num">${fmt(b||0)}</td>`;
+      }).join('');
+      totals[yearCount] += total;
+      totals[yearCount+1] += itemSpent;
+      totals[yearCount+2] += itemRem;
+      rows += `<tr>
+        <td class="cat">${showCat ? escapeHTML(item.cat) : ''}</td>
+        <td class="sub">${escapeHTML(item.sub)}${item.note?` <span class="note-cell">· ${escapeHTML(item.note)}</span>`:''}</td>
+        ${yearCells}
+        <td class="num">${fmt(total)}</td>
+        <td class="num">${fmt(itemSpent)}</td>
+        <td class="num">${fmt(itemRem)}</td>
+        <td class="num"><div class="pct-cell"><span class="mini-bar"><span class="mini-bar-fill" style="width:${Math.min(itemPct*100,100)}%;background:var(--${p.accent})"></span></span>${(itemPct*100).toFixed(1)}%</div></td>
+      </tr>`;
+    });
+    const yearHeaders = years.map(y => `<th class="num">${escapeHTML(y.label)}</th>`).join('');
+    const yearTotals = years.map((_,i) => `<td class="num">${fmt(totals[i])}</td>`).join('');
+    tableHTML = `
+      <table class="dtable">
+        <thead><tr>
+          <th style="width:90px">비목</th><th>세목</th>
+          ${yearHeaders}
+          <th class="num">합계예산</th><th class="num">집행</th><th class="num">잔액</th>
+          <th class="num" style="width:100px">집행률</th>
+        </tr></thead>
+        <tbody>${rows}
+          <tr class="total-row">
+            <td colspan="2">합계</td>
+            ${yearTotals}
+            <td class="num">${fmt(totals[yearCount])}</td>
+            <td class="num">${fmt(totals[yearCount+1])}</td>
+            <td class="num">${fmt(totals[yearCount+2])}</td>
+            <td class="num">${fmtPct(totals[yearCount] ? totals[yearCount+1]/totals[yearCount] : 0)}</td>
+          </tr>
+        </tbody>
+      </table>`;
+    const ySpent = years.map((_,i) => expenses.filter(e => e.projectId===p.id && getYearIndex(p.id,e.date)===i).reduce((s,e) => s+e.amount, 0));
+    tableHTML += `<div style="margin-top:24px;padding-top:18px;border-top:1px dashed var(--line);display:grid;grid-template-columns:repeat(${yearCount},1fr);gap:14px">` +
+      years.map((y,i) => `<div style="padding:14px;background:var(--surface-alt);border-radius:3px">
+        <div style="font-family:var(--serif);font-size:11px;letter-spacing:.1em;color:var(--ink-3);text-transform:uppercase;margin-bottom:4px">${escapeHTML(y.label)} 집행</div>
+        <div style="font-family:var(--mono);font-size:18px;font-weight:500">${fmt(ySpent[i])}원 <span style="font-size:11px;color:var(--ink-3)">/ ${fmt(totals[i])}</span></div>
+      </div>`).join('') + '</div>';
+  } else if (p.type === 'unified') {
+    let bodyRows = p.items.map(item => {
+      const itemSpent = getSpentForItem(p.id, item.sub);
+      return `<tr><td class="cat">${escapeHTML(item.cat)}</td><td class="sub">${escapeHTML(item.sub)}</td><td class="num">${fmt(itemSpent)}</td></tr>`;
+    }).join('');
+    tableHTML = `
+      <div style="padding:18px;background:var(--surface-alt);border-radius:3px;margin-bottom:18px">
+        <div style="font-family:var(--serif);font-size:11px;letter-spacing:.1em;color:var(--ink-3);text-transform:uppercase;margin-bottom:6px">통합 예산 (비목 구분 없음)</div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:14px">
+          <div style="font-family:var(--mono);font-size:22px;font-weight:500">${fmt(p.totalBudget)}원</div>
+          <div style="font-family:var(--mono);font-size:13px;color:var(--ink-3)">집행 ${fmt(spent)}원 · 잔액 ${fmt(remaining)}원 · 집행률 ${fmtPct(pct)}</div>
+        </div>
+      </div>
+      <table class="dtable">
+        <thead><tr><th style="width:90px">분류</th><th>항목</th><th class="num">집행</th></tr></thead>
+        <tbody>${bodyRows}</tbody>
+      </table>
+      <p style="margin-top:14px;font-size:11px;color:var(--ink-4);font-style:italic">※ 항목별 예산 한도가 없는 통합 예산 과제입니다.</p>`;
+  } else {
+    // single
+    let bodyRows = '';
+    let prevCat = '';
+    let totBudget = 0, totSpent = 0;
+    p.items.forEach(item => {
+      const itemSpent = getSpentForItem(p.id, item.sub);
+      const itemBudget = item.budget || 0;
+      const itemRem = itemBudget - itemSpent;
+      const itemPct = itemBudget ? itemSpent/itemBudget : 0;
+      const showCat = item.cat !== prevCat;
+      prevCat = item.cat;
+      totBudget += itemBudget;
+      totSpent += itemSpent;
+      bodyRows += `<tr>
+        <td class="cat">${showCat ? escapeHTML(item.cat) : ''}</td>
+        <td class="sub">${escapeHTML(item.sub)}${item.note?` <span class="note-cell">· ${escapeHTML(item.note)}</span>`:''}</td>
+        <td class="num">${fmt(itemBudget)}</td>
+        <td class="num">${fmt(itemSpent)}</td>
+        <td class="num">${fmt(itemRem)}</td>
+        <td class="num"><div class="pct-cell"><span class="mini-bar"><span class="mini-bar-fill" style="width:${Math.min(itemPct*100,100)}%;background:var(--${p.accent})"></span></span>${(itemPct*100).toFixed(1)}%</div></td>
+      </tr>`;
+    });
+    tableHTML = `
+      <table class="dtable">
+        <thead><tr>
+          <th style="width:120px">비목</th><th>세목</th>
+          <th class="num">예산</th><th class="num">집행</th><th class="num">잔액</th>
+          <th class="num" style="width:110px">집행률</th>
+        </tr></thead>
+        <tbody>${bodyRows}
+          <tr class="total-row">
+            <td colspan="2">합계</td>
+            <td class="num">${fmt(totBudget)}</td>
+            <td class="num">${fmt(totSpent)}</td>
+            <td class="num">${fmt(totBudget-totSpent)}</td>
+            <td class="num">${fmtPct(totBudget ? totSpent/totBudget : 0)}</td>
+          </tr>
+        </tbody>
+      </table>`;
+  }
+
+  panel.innerHTML = `
+    <div class="detail-meta">
+      <div class="detail-meta-left">${escapeHTML(p.name)}${p.subtitle?` <small>${escapeHTML(p.subtitle)}</small>`:''}</div>
+      <div class="detail-meta-right">${escapeHTML(p.period)} · 총 ${fmt(p.totalBudget)}원</div>
+    </div>
+    ${tableHTML}`;
+}
+
+// ==================================================================
+// RENDER: FILTER CHIPS & EXPENSE LIST
+// ==================================================================
+function renderFilterChips(){
+  const chips = document.getElementById('filter-chips');
+  const html = '<button class="chip ' + (activeFilter==='all'?'active':'') + '" data-f="all">전체</button>' +
+    projects.map(p => `<button class="chip ${activeFilter===p.id?'active':''}" data-f="${p.id}">${escapeHTML(p.name)}</button>`).join('');
+  chips.innerHTML = html;
+}
+
+function renderExpenses(){
+  const list = document.getElementById('expense-list');
+  const filtered = activeFilter==='all' ? expenses : expenses.filter(e => e.projectId===activeFilter);
+  document.getElementById('e-count').textContent = `(${filtered.length}건${activeFilter!=='all'?', 필터됨':''})`;
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="etable" style="border:1px dashed var(--line);box-shadow:none">
+      <div class="empty">
+        <div class="empty-icon">∅</div>
+        <div class="empty-text">${activeFilter==='all'?'아직 지출 내역이 없습니다':'해당 과제의 지출 내역이 없습니다'}</div>
+        <div class="empty-sub">위 [지출 입력]에서 첫 항목을 추가해보세요</div>
+      </div></div>`;
+    return;
+  }
+  const sorted = [...filtered].sort((a,b) => a.date!==b.date ? b.date.localeCompare(a.date) : b.id.localeCompare(a.id));
+  const rows = sorted.map(e => {
+    const p = getProject(e.projectId);
+    if (!p) return '';
+    const accent = p.accent;
+    const yearLabel = p.type==='yearly' && p.years ? (() => {
+      const idx = getYearIndex(p.id, e.date);
+      return idx>=0 ? `<span style="font-size:10px;color:var(--ink-4);margin-left:6px">${escapeHTML(p.years[idx].label)}</span>` : '';
+    })() : '';
+    return `<tr data-id="${e.id}">
+      <td class="e-date">${e.date}</td>
+      <td><span class="pdot" style="background:var(--${accent})"></span>${escapeHTML(p.name)}${yearLabel}</td>
+      <td><div class="e-cat">${escapeHTML(e.category)} › ${escapeHTML(e.subcategory)}</div></td>
+      <td><div class="e-desc">${escapeHTML(e.description)}</div>${e.note?`<div class="e-note">${escapeHTML(e.note)}</div>`:''}</td>
+      <td class="num">${fmt(e.amount)}원</td>
+      <td class="center" style="white-space:nowrap">
+        <button class="icon-btn" data-act="edit" data-id="${e.id}" title="수정">✎</button>
+        <button class="icon-btn danger" data-act="del" data-id="${e.id}" title="삭제">×</button>
+      </td>
+    </tr>`;
+  }).join('');
+  list.innerHTML = `<table class="etable">
+    <thead><tr>
+      <th style="width:110px">일자</th><th style="width:200px">과제</th>
+      <th style="width:240px">비목 / 세목</th><th>내용</th>
+      <th class="num" style="width:140px">금액</th>
+      <th class="center" style="width:100px">동작</th>
+    </tr></thead>
+    <tbody>${rows}</tbody></table>`;
+}
+
+// ==================================================================
+// RENDER: NRF GUIDE
+// ==================================================================
+function renderGuide(){
+  const grid = document.getElementById('guide-grid');
+  // group rules by category
+  const groups = {};
+  RULES.forEach(r => {
+    const key = r.cat === '*' ? '공통 사항' : r.cat;
+    if (!groups[key]) groups[key] = [];
+    groups[key].push(r);
+  });
+  const order = ['공통 사항','인건비','학생인건비','연구시설·장비비','연구재료비','연구활동비','연구수당','보안수당','위탁연구개발비','간접비'];
+  const cards = order.filter(k => groups[k]).map(k => {
+    const items = groups[k].map(r => `
+      <div class="guide-rule" data-sev="${r.sev}">
+        <div class="guide-rule-t">${escapeHTML(r.t)}${r.sub?` <span style="font-weight:400;color:var(--ink-3);font-size:10.5px">· ${escapeHTML(r.sub)}</span>`:''}</div>
+        <div class="guide-rule-b">${escapeHTML(r.b)}</div>
+      </div>
+    `).join('');
+    return `<div class="guide-cat-card">
+      <div class="guide-cat-name">${escapeHTML(k)}</div>
+      <div class="guide-rules">${items}</div>
+    </div>`;
+  }).join('');
+  grid.innerHTML = cards;
+}
+
+// ==================================================================
+// RENDER ALL
+// ==================================================================
+function rebuildProjectSelect(){
+  const sel = document.getElementById('f-project');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">선택</option>' + projects.map(p => `<option value="${p.id}">${escapeHTML(p.name)}</option>`).join('');
+  if (cur && projects.find(p => p.id===cur)) sel.value = cur;
+}
+
+function renderAll(){
+  renderHeader();
+  renderCards();
+  rebuildProjectSelect();
+  renderTabs();
+  renderDetail();
+  renderFilterChips();
+  renderExpenses();
+}
+
+function escapeHTML(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// ==================================================================
+// EXPENSE FORM HANDLING
+// ==================================================================
+function resetForm(){
+  document.getElementById('expense-form').reset();
+  document.getElementById('f-date').value = todayISO();
+  document.getElementById('f-category').innerHTML = '<option value="">먼저 과제 선택</option>';
+  document.getElementById('f-category').disabled = true;
+  document.getElementById('f-sub').innerHTML = '<option value="">먼저 비목 선택</option>';
+  document.getElementById('f-sub').disabled = true;
+  editingId = null;
+  document.getElementById('form-card').classList.remove('editing');
+  document.getElementById('submit-btn').textContent = '저장';
+  document.getElementById('cancel-btn').hidden = true;
+  renderRulePanel(null, null);
+}
+
+function fillEditForm(exp){
+  editingId = exp.id;
+  document.getElementById('f-date').value = exp.date;
+  document.getElementById('f-project').value = exp.projectId;
+  updateCategoryOptions(exp.projectId);
+  document.getElementById('f-category').value = exp.category;
+  updateSubOptions(exp.projectId, exp.category);
+  document.getElementById('f-sub').value = exp.subcategory;
+  document.getElementById('f-desc').value = exp.description;
+  document.getElementById('f-amount').value = exp.amount;
+  document.getElementById('f-note').value = exp.note || '';
+  document.getElementById('form-card').classList.add('editing');
+  document.getElementById('submit-btn').textContent = '수정 저장';
+  document.getElementById('cancel-btn').hidden = false;
+  renderRulePanel(exp.category, exp.subcategory);
+  document.getElementById('form-card').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function updateCategoryOptions(pid){
+  const select = document.getElementById('f-category');
+  if (!pid) { select.innerHTML = '<option value="">먼저 과제 선택</option>'; select.disabled = true; return; }
+  const cats = getCategoriesForProject(pid);
+  select.innerHTML = '<option value="">선택</option>' + cats.map(c => `<option value="${escapeHTML(c)}">${escapeHTML(c)}</option>`).join('');
+  select.disabled = false;
+}
+function updateSubOptions(pid, cat){
+  const select = document.getElementById('f-sub');
+  if (!pid || !cat) { select.innerHTML = '<option value="">먼저 비목 선택</option>'; select.disabled = true; return; }
+  const subs = getSubsForCategory(pid, cat);
+  select.innerHTML = '<option value="">선택</option>' + subs.map(s => `<option value="${escapeHTML(s)}">${escapeHTML(s)}</option>`).join('');
+  select.disabled = false;
+}
+
+document.getElementById('f-project').addEventListener('change', e => {
+  updateCategoryOptions(e.target.value);
+  updateSubOptions(null, null);
+  renderRulePanel(null, null);
+});
+document.getElementById('f-category').addEventListener('change', e => {
+  const pid = document.getElementById('f-project').value;
+  updateSubOptions(pid, e.target.value);
+  renderRulePanel(e.target.value, null);
+});
+document.getElementById('f-sub').addEventListener('change', e => {
+  const cat = document.getElementById('f-category').value;
+  renderRulePanel(cat, e.target.value);
+});
+
+document.getElementById('expense-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const data = {
+    date: document.getElementById('f-date').value,
+    projectId: document.getElementById('f-project').value,
+    category: document.getElementById('f-category').value,
+    subcategory: document.getElementById('f-sub').value,
+    description: document.getElementById('f-desc').value.trim(),
+    amount: parseInt(document.getElementById('f-amount').value, 10),
+    note: document.getElementById('f-note').value.trim(),
+  };
+  if (!data.date || !data.projectId || !data.category || !data.subcategory || !data.description || !data.amount) {
+    showToast('모든 필수 항목을 입력하세요', true); return;
+  }
+  if (data.amount <= 0) { showToast('금액은 0보다 커야 합니다', true); return; }
+  if (editingId) {
+    const idx = expenses.findIndex(x => x.id===editingId);
+    if (idx>=0) expenses[idx] = {...expenses[idx], ...data};
+    showToast('수정 완료');
+  } else {
+    expenses.push({id: uid(), ...data});
+    showToast('지출 등록됨');
+  }
+  await saveExpenses();
+  resetForm();
+  renderAll();
+});
+
+document.getElementById('cancel-btn').addEventListener('click', resetForm);
+
+document.getElementById('expense-list').addEventListener('click', async e => {
+  const btn = e.target.closest('[data-act]');
+  if (!btn) return;
+  const id = btn.dataset.id;
+  const exp = expenses.find(x => x.id===id);
+  if (!exp) return;
+  if (btn.dataset.act === 'edit') fillEditForm(exp);
+  else if (btn.dataset.act === 'del') {
+    if (confirm(`이 지출을 삭제할까요?\n\n${exp.date}  ${exp.description}  ${fmt(exp.amount)}원`)) {
+      expenses = expenses.filter(x => x.id!==id);
+      await saveExpenses();
+      if (editingId === id) resetForm();
+      renderAll();
+      showToast('삭제됨');
+    }
+  }
+});
+
+document.getElementById('cards').addEventListener('click', e => {
+  if (e.target.closest('#add-proj-card')) { openProjectModal(null); return; }
+  const editBtn = e.target.closest('[data-edit]');
+  if (editBtn) { e.stopPropagation(); openProjectModal(editBtn.dataset.edit); }
+});
+
+document.getElementById('tabs').addEventListener('click', e => {
+  const btn = e.target.closest('.tab');
+  if (!btn) return;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  activeTab = btn.dataset.tab;
+  renderDetail();
+});
+document.getElementById('filter-chips').addEventListener('click', e => {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  document.querySelectorAll('#filter-chips .chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  activeFilter = chip.dataset.f;
+  renderExpenses();
+});
+
+document.getElementById('export-btn').addEventListener('click', () => {
+  if (expenses.length === 0) { showToast('내보낼 지출이 없습니다', true); return; }
+  const headers = ['일자','과제','비목','세목','내용','금액','메모','차년도'];
+  const rows = [...expenses].sort((a,b) => a.date.localeCompare(b.date)).map(e => {
+    const p = getProject(e.projectId);
+    let yearLabel = '';
+    if (p && p.type==='yearly' && p.years) {
+      const idx = getYearIndex(p.id, e.date);
+      if (idx>=0) yearLabel = p.years[idx].label;
+    }
+    return [e.date, p?p.name:'(삭제됨)', e.category, e.subcategory, e.description, e.amount, e.note||'', yearLabel];
+  });
+  const csv = '\uFEFF' + [headers, ...rows].map(r => r.map(v => {
+    const s = String(v);
+    return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s;
+  }).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `지출내역_${todayISO()}.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('CSV 내보냄');
+});
+
+// ==================================================================
+// PROJECT MODAL
+// ==================================================================
+function openProjectModal(projId){
+  editingProjectId = projId;
+  const isEdit = !!projId;
+  document.getElementById('proj-modal-title').textContent = isEdit ? '과제 편집' : '과제 추가';
+  document.getElementById('p-delete-btn').hidden = !isEdit;
+  if (isEdit) {
+    const p = getProject(projId);
+    document.getElementById('p-name').value = p.name;
+    document.getElementById('p-sub').value = p.subtitle || '';
+    document.getElementById('p-period').value = p.period;
+    document.getElementById('p-budget').value = p.totalBudget;
+    projModalState.accent = p.accent;
+    projModalState.type = p.type;
+    projModalState.items = JSON.parse(JSON.stringify(p.items));
+    document.getElementById('p-years').value = (p.years?p.years.length:3);
+  } else {
+    document.getElementById('p-name').value = '';
+    document.getElementById('p-sub').value = '';
+    document.getElementById('p-period').value = '';
+    document.getElementById('p-budget').value = '';
+    projModalState.accent = 'navy';
+    projModalState.type = 'yearly';
+    projModalState.items = [];
+    document.getElementById('p-years').value = 3;
+  }
+  // accent ui
+  document.querySelectorAll('.accent-opt').forEach(o => o.classList.toggle('active', o.dataset.c === projModalState.accent));
+  // type ui
+  document.querySelectorAll('.type-opt').forEach(o => o.classList.toggle('active', o.dataset.t === projModalState.type));
+  document.getElementById('years-row').style.display = projModalState.type==='yearly' ? '' : 'none';
+  renderItemBuilder();
+  document.getElementById('proj-modal-bg').classList.add('show');
+}
+function closeProjectModal(){ document.getElementById('proj-modal-bg').classList.remove('show'); }
+
+function renderItemBuilder(){
+  const type = projModalState.type;
+  const yearCount = parseInt(document.getElementById('p-years').value || '3', 10);
+  const list = document.getElementById('items-list');
+  const hdr = document.getElementById('item-hdr');
+  hdr.className = 'item-hdr t-' + type;
+  if (type === 'yearly') {
+    let ys = '';
+    for (let i=0;i<Math.min(yearCount,3);i++) ys += `<div>${i+1}차년도</div>`;
+    hdr.innerHTML = `<div>비목</div><div>세목</div>${ys}<div></div>`;
+  } else if (type === 'single') {
+    hdr.innerHTML = `<div>비목</div><div>세목</div><div>예산(원)</div><div></div>`;
+  } else {
+    hdr.innerHTML = `<div>분류</div><div>항목명</div><div></div>`;
+  }
+  list.innerHTML = projModalState.items.map((it,idx) => itemRowHTML(it, idx, type, yearCount)).join('');
+  // bind cat change listeners to update datalist
+  list.querySelectorAll('.it-cat').forEach(sel => {
+    sel.addEventListener('change', () => {
+      const idx = parseInt(sel.dataset.idx,10);
+      projModalState.items[idx].cat = sel.value;
+      // update sub datalist
+      const sub = list.querySelector(`.it-sub[data-idx="${idx}"]`);
+      if (sub) {
+        const dl = list.querySelector(`#sub-dl-${idx}`);
+        if (dl) dl.innerHTML = (NRF_SUBS[sel.value]||[]).map(s => `<option value="${escapeHTML(s)}">`).join('');
+      }
+    });
+  });
+  list.querySelectorAll('.it-sub').forEach(inp => {
+    inp.addEventListener('input', () => {
+      projModalState.items[parseInt(inp.dataset.idx,10)].sub = inp.value;
+    });
+  });
+  list.querySelectorAll('.it-b').forEach(inp => {
+    inp.addEventListener('input', () => {
+      const idx = parseInt(inp.dataset.idx,10);
+      if (type === 'yearly') {
+        const yi = parseInt(inp.dataset.y,10);
+        if (!projModalState.items[idx].budgets) projModalState.items[idx].budgets = [0,0,0];
+        projModalState.items[idx].budgets[yi] = parseInt(inp.value||'0',10);
+      } else {
+        projModalState.items[idx].budget = parseInt(inp.value||'0',10);
+      }
+    });
+  });
+  list.querySelectorAll('.it-x').forEach(btn => {
+    btn.addEventListener('click', () => {
+      projModalState.items.splice(parseInt(btn.dataset.idx,10), 1);
+      renderItemBuilder();
+    });
+  });
+}
+
+function itemRowHTML(item, idx, type, yearCount){
+  const catOpts = NRF_CATS.map(c => `<option value="${escapeHTML(c)}" ${item.cat===c?'selected':''}>${escapeHTML(c)}</option>`).join('');
+  const subDataList = (NRF_SUBS[item.cat]||[]).map(s => `<option value="${escapeHTML(s)}">`).join('');
+  if (type === 'yearly') {
+    const budgets = item.budgets || [0,0,0];
+    let yearInputs = '';
+    for (let i=0;i<Math.min(yearCount,3);i++) {
+      yearInputs += `<input type="number" class="it-b" data-idx="${idx}" data-y="${i}" min="0" value="${budgets[i]||0}">`;
+    }
+    return `<div class="item-row t-yearly">
+      <select class="it-cat" data-idx="${idx}"><option value="">선택</option>${catOpts}</select>
+      <input type="text" class="it-sub" data-idx="${idx}" value="${escapeHTML(item.sub||'')}" list="sub-dl-${idx}" placeholder="세목명">
+      <datalist id="sub-dl-${idx}">${subDataList}</datalist>
+      ${yearInputs}
+      <button class="x it-x" data-idx="${idx}" type="button">×</button>
+    </div>`;
+  } else if (type === 'single') {
+    return `<div class="item-row t-single">
+      <select class="it-cat" data-idx="${idx}"><option value="">선택</option>${catOpts}</select>
+      <input type="text" class="it-sub" data-idx="${idx}" value="${escapeHTML(item.sub||'')}" list="sub-dl-${idx}" placeholder="세목명">
+      <datalist id="sub-dl-${idx}">${subDataList}</datalist>
+      <input type="number" class="it-b" data-idx="${idx}" min="0" value="${item.budget||0}">
+      <button class="x it-x" data-idx="${idx}" type="button">×</button>
+    </div>`;
+  } else {
+    return `<div class="item-row t-unified">
+      <select class="it-cat" data-idx="${idx}"><option value="">선택</option>${catOpts}</select>
+      <input type="text" class="it-sub" data-idx="${idx}" value="${escapeHTML(item.sub||'')}" list="sub-dl-${idx}" placeholder="항목명">
+      <datalist id="sub-dl-${idx}">${subDataList}</datalist>
+      <button class="x it-x" data-idx="${idx}" type="button">×</button>
+    </div>`;
+  }
+}
+
+// modal event handlers
+document.getElementById('proj-modal-close').addEventListener('click', closeProjectModal);
+document.getElementById('p-cancel-btn').addEventListener('click', closeProjectModal);
+document.getElementById('proj-modal-bg').addEventListener('click', e => {
+  if (e.target.id === 'proj-modal-bg') closeProjectModal();
+});
+
+document.getElementById('accent-picker').addEventListener('click', e => {
+  const opt = e.target.closest('.accent-opt');
+  if (!opt) return;
+  projModalState.accent = opt.dataset.c;
+  document.querySelectorAll('.accent-opt').forEach(o => o.classList.toggle('active', o === opt));
+});
+
+document.querySelectorAll('.type-opt').forEach(opt => {
+  opt.addEventListener('click', () => {
+    projModalState.type = opt.dataset.t;
+    document.querySelectorAll('.type-opt').forEach(o => o.classList.toggle('active', o === opt));
+    document.getElementById('years-row').style.display = projModalState.type==='yearly' ? '' : 'none';
+    // normalize items for new type
+    projModalState.items = projModalState.items.map(it => {
+      if (projModalState.type === 'yearly') {
+        if (!it.budgets) it.budgets = [it.budget||0, 0, 0];
+        delete it.budget;
+      } else if (projModalState.type === 'single') {
+        if (it.budgets) { it.budget = it.budgets.reduce((s,v)=>s+(v||0),0); delete it.budgets; }
+      } else {
+        delete it.budgets; delete it.budget;
+      }
+      return it;
+    });
+    renderItemBuilder();
+  });
+});
+
+document.getElementById('p-years').addEventListener('change', () => {
+  const n = Math.max(1, Math.min(10, parseInt(document.getElementById('p-years').value||'3', 10)));
+  document.getElementById('p-years').value = n;
+  // pad budgets
+  projModalState.items.forEach(it => {
+    if (!it.budgets) it.budgets = [];
+    while (it.budgets.length < n) it.budgets.push(0);
+    it.budgets = it.budgets.slice(0,n);
+  });
+  renderItemBuilder();
+});
+
+document.getElementById('add-item-btn').addEventListener('click', () => {
+  const t = projModalState.type;
+  const base = { cat:'', sub:'' };
+  if (t === 'yearly') base.budgets = [0,0,0];
+  else if (t === 'single') base.budget = 0;
+  projModalState.items.push(base);
+  renderItemBuilder();
+});
+
+const PRESETS = {
+  'nrf-full': [
+    {cat:'인건비', sub:'내부인건비'},
+    {cat:'학생인건비', sub:'학생인건비'},
+    {cat:'연구시설·장비비', sub:'연구시설·장비 구입·설치비'},
+    {cat:'연구재료비', sub:'연구재료 구입비'},
+    {cat:'연구활동비', sub:'연구활동비'},
+    {cat:'연구수당', sub:'연구수당'},
+  ],
+  'manpower': [
+    {cat:'인건비', sub:'내부인건비'},
+    {cat:'인건비', sub:'외부인건비'},
+    {cat:'학생인건비', sub:'학생인건비'},
+  ],
+  'research': [
+    {cat:'연구재료비', sub:'연구재료 구입비'},
+    {cat:'연구활동비', sub:'전문가활용비'},
+    {cat:'연구활동비', sub:'국내출장여비'},
+    {cat:'연구활동비', sub:'회의비'},
+    {cat:'연구활동비', sub:'논문게재료'},
+    {cat:'연구수당', sub:'연구수당'},
+  ],
+};
+
+document.getElementById('presets').addEventListener('click', e => {
+  const btn = e.target.closest('.preset-btn');
+  if (!btn) return;
+  const p = btn.dataset.p;
+  if (p === 'clear') { projModalState.items = []; renderItemBuilder(); return; }
+  const t = projModalState.type;
+  const yc = parseInt(document.getElementById('p-years').value||'3', 10);
+  const newItems = PRESETS[p].map(x => {
+    const it = {...x};
+    if (t === 'yearly') it.budgets = Array(yc).fill(0);
+    else if (t === 'single') it.budget = 0;
+    return it;
+  });
+  projModalState.items = [...projModalState.items, ...newItems];
+  renderItemBuilder();
+});
+
+document.getElementById('p-save-btn').addEventListener('click', async () => {
+  const name = document.getElementById('p-name').value.trim();
+  const subtitle = document.getElementById('p-sub').value.trim();
+  const period = document.getElementById('p-period').value.trim();
+  const totalBudget = parseInt(document.getElementById('p-budget').value||'0', 10);
+  if (!name) { showToast('과제명을 입력하세요', true); return; }
+  if (!period) { showToast('기간을 입력하세요', true); return; }
+  if (!totalBudget || totalBudget <= 0) { showToast('총예산을 입력하세요', true); return; }
+  // filter empty items
+  const items = projModalState.items.filter(it => it.cat && it.sub);
+  if (items.length === 0) { showToast('비목/세목을 최소 1개 이상 추가하세요', true); return; }
+
+  const projectData = {
+    name, subtitle, period, totalBudget,
+    accent: projModalState.accent,
+    type: projModalState.type,
+    items
+  };
+  if (projModalState.type === 'yearly') {
+    const yc = parseInt(document.getElementById('p-years').value||'3', 10);
+    projectData.years = computeYearsFromPeriod(period, yc);
+  }
+
+  if (editingProjectId) {
+    const idx = projects.findIndex(p => p.id === editingProjectId);
+    if (idx >= 0) projects[idx] = { ...projects[idx], ...projectData };
+    showToast('과제 수정됨');
+  } else {
+    projectData.id = pid();
+    projects.push(projectData);
+    activeTab = projectData.id;
+    showToast('과제 추가됨');
+  }
+  await saveProjects();
+  closeProjectModal();
+  renderAll();
+});
+
+document.getElementById('p-delete-btn').addEventListener('click', async () => {
+  if (!editingProjectId) return;
+  const p = getProject(editingProjectId);
+  const relatedExpenses = expenses.filter(e => e.projectId === editingProjectId).length;
+  let msg = `과제 「${p.name}」을 삭제하시겠습니까?`;
+  if (relatedExpenses > 0) msg += `\n\n⚠ 이 과제의 지출 내역 ${relatedExpenses}건도 함께 삭제됩니다.`;
+  if (!confirm(msg)) return;
+  projects = projects.filter(x => x.id !== editingProjectId);
+  expenses = expenses.filter(e => e.projectId !== editingProjectId);
+  if (activeTab === editingProjectId) activeTab = projects[0]?.id || null;
+  if (activeFilter === editingProjectId) activeFilter = 'all';
+  await saveProjects();
+  await saveExpenses();
+  closeProjectModal();
+  renderAll();
+  showToast('과제 삭제됨');
+});
+
+// guide toggle
+document.getElementById('guide-toggle').addEventListener('click', () => {
+  const btn = document.getElementById('guide-toggle');
+  const body = document.getElementById('guide-body');
+  btn.classList.toggle('open');
+  body.classList.toggle('show');
+});
+
+// toast
+let toastTimer;
+function showToast(msg, isError = false){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.toggle('error', isError);
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// ==================================================================
+// NRF 규정 검색 — 로컬 키워드 + 동의어 매핑 (외부 API 의존 없음)
+// ==================================================================
+const qaHistory = [];
+
+const SYNONYMS = {
+  'ai': ['ai','인공지능','chatgpt','gpt','클로드','claude','copilot','perplexity','생성형','llm'],
+  '구독': ['구독','정기결제','월정액','이용권','계정','라이선스'],
+  '소프트웨어': ['소프트웨어','sw','프로그램','앱','클라우드','saas'],
+  '학회': ['학회','세미나','컨퍼런스','학술대회','워크숍','학술발표'],
+  '참가비': ['참가비','등록비','연회비','회비','참여비'],
+  '출장': ['출장','여비','파견','방문','출국','입국','이동'],
+  '국외': ['국외','해외','외국','국제'],
+  '항공': ['항공','비행기','항공료'],
+  '숙박': ['숙박','호텔','숙소','체류'],
+  '식대': ['식대','식비','음식','점심','저녁','아침','다과','야근식대'],
+  '회의': ['회의','미팅','간담회','회의록','회의비'],
+  '회식': ['회식','만찬','단합'],
+  '인건비': ['인건비','월급','급여','연봉','보수','임금','계상률'],
+  '학생인건비': ['학생인건비','학생','대학원생','석사','박사','학사'],
+  '교수': ['교수','전임','부교수','조교수','강사','교원','겸임','초빙'],
+  '연구수당': ['연구수당','수당','성과급','인센티브','기여도'],
+  '보안수당': ['보안수당','보안과제'],
+  '장비': ['장비','시설','기자재','컴퓨터','노트북','pc','하드웨어','연구장비'],
+  '구입': ['구입','구매','매입','계약','발주'],
+  '재료': ['재료','시약','소모품','부품','원자재'],
+  '임차': ['임차','대여','렌탈','리스'],
+  '자문': ['자문','자문료','전문가','컨설팅'],
+  '강사료': ['강사료','강연료','강연','강의'],
+  '원고료': ['원고료','집필','저술','원고'],
+  '회수': ['회수','공동관리','반납','걷어','모아','뺏어'],
+  '논문': ['논문','게재료','저널','학술지','출판','투고','저술','인쇄'],
+  '환급': ['환급','반환','부가세','관세','세금','vat'],
+  '카드': ['카드','연구비카드','신용카드'],
+  '계좌이체': ['계좌이체','이체','송금'],
+  '현금': ['현금','지폐','주화'],
+  '상품권': ['상품권','기프티콘','문화상품권','쿠폰','모바일상품권'],
+  '위탁': ['위탁','외주','협력','용역'],
+  '국제공동': ['국제공동','글로벌'],
+  '간접비': ['간접비','관리비','오버헤드'],
+  '폐기물': ['폐기물','쓰레기','처리비'],
+  '특허': ['특허','지식재산','지식재산권','출원','등록'],
+  '종료': ['종료','만료','마감','이후','종료후','종료일'],
+  '승인': ['승인','허가','결재','신청','사전승인'],
+  '증빙': ['증빙','영수증','계약서','명세서','전표'],
+};
+
+const STOPWORDS = new Set(['이','가','을','를','은','는','의','에','에서','로','으로','와','과','이나','요','다','입니다','있','없','한','수','지','거','것','어','이런','저런','어떤','어떻게','어떻','뭐','어','해도','해서','하면','하나요','되나','되나요','되니','되는지','써도','쓰면','쓸수','쓸수있나요','가능한가요','가능할까요','됩니까','됩니다','이걸','그걸']);
+
+function normalize(s){
+  return String(s).toLowerCase()
+    .replace(/[?!,.\(\)\[\]"'·~\-_\/]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function expandTokens(query){
+  const raw = normalize(query).split(' ').filter(t => t.length >= 1 && !STOPWORDS.has(t));
+  const expanded = new Set();
+  raw.forEach(t => {
+    if (t.length >= 1) expanded.add(t);
+    if (t.length >= 3) {
+      for (let i = 0; i <= t.length - 2; i++) expanded.add(t.slice(i, i+2));
+    }
+    Object.entries(SYNONYMS).forEach(([key, vals]) => {
+      const allWords = [key, ...vals];
+      if (allWords.some(w => t === w || (w.length >= 2 && t.includes(w)) || (t.length >= 2 && w.includes(t)))) {
+        allWords.forEach(w => expanded.add(w));
+      }
+    });
+  });
+  return [...expanded].filter(t => t && t.length >= 1 && !STOPWORDS.has(t));
+}
+
+function searchRules(query){
+  const tokens = expandTokens(query);
+  if (tokens.length === 0) return [];
+  const scored = RULES.map(rule => {
+    const titleNorm = normalize(rule.t);
+    const bodyNorm = normalize(rule.b);
+    const subNorm = normalize(rule.sub || '');
+    const catNorm = normalize(rule.cat === '*' ? '공통' : rule.cat);
+    let score = 0;
+    const matched = new Set();
+    tokens.forEach(t => {
+      if (!t || t.length < 1) return;
+      if (titleNorm.includes(t)) { score += 5; matched.add(t); }
+      if (bodyNorm.includes(t)) { score += 2; matched.add(t); }
+      if (subNorm.includes(t)) { score += 4; matched.add(t); }
+      if (catNorm.includes(t)) { score += 3; matched.add(t); }
+    });
+    score += matched.size * 2;
+    return { rule, score };
+  });
+  return scored
+    .filter(s => s.score >= 3)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 6)
+    .map(s => s.rule);
+}
+
+function severityIcon(sev){
+  return sev === 'warn' ? '⚠️' : (sev === 'tip' ? '💡' : 'ℹ️');
+}
+function severityLabel(sev){
+  return sev === 'warn' ? '필수 준수' : (sev === 'tip' ? '활용 팁' : '기준 안내');
+}
+
+function renderSearchResultHTML(matchedRules, query){
+  if (matchedRules.length === 0) {
+    return `<div class="qa-answer">
+      <p><strong>🔍 일치하는 NRF 규정을 찾지 못했습니다.</strong></p>
+      <p style="font-size:12px;color:var(--ink-3);margin-top:6px">다른 키워드로 시도하시거나, 하단 NRF 가이드 패널에서 전체 규정을 확인하세요. NRF 공식 가이드에 명시되지 않은 사안은 소속 기관 연구지원팀 또는 한국연구재단(1544-6118)에 확인하세요.</p>
+    </div>`;
+  }
+  const warnCount = matchedRules.filter(r => r.sev === 'warn').length;
+  const summary = warnCount > 0
+    ? `<strong>⚠️ 주의 규정 ${warnCount}건 포함</strong> · 관련 NRF 조항 ${matchedRules.length}건을 찾았습니다. 아래 규정을 종합하여 판단하세요.`
+    : `<strong>📋 관련 NRF 조항 ${matchedRules.length}건</strong>을 찾았습니다.`;
+  return `<div class="qa-answer">
+    <div class="qa-summary">${summary}</div>
+    <div class="qa-rule-results">
+      ${matchedRules.map(r => `
+        <div class="qa-rule-card" data-sev="${r.sev}">
+          <div class="qa-rule-cat">${escapeHTML(r.cat === '*' ? '공통 사항' : r.cat)}${r.sub ? ' › ' + escapeHTML(r.sub) : ''} · ${severityLabel(r.sev)}</div>
+          <div class="qa-rule-head">${severityIcon(r.sev)} ${escapeHTML(r.t)}</div>
+          <div class="qa-rule-body">${escapeHTML(r.b)}</div>
+          <div class="qa-rule-src">📖 ${escapeHTML(r.s)}</div>
+        </div>
+      `).join('')}
+    </div>
+  </div>`;
+}
+
+function renderQAHistory(){
+  const histEl = document.getElementById('qa-history');
+  if (qaHistory.length === 0) { histEl.innerHTML = ''; return; }
+  histEl.innerHTML = qaHistory.map(qa => `
+    <div class="qa-item">
+      <div class="qa-question"><span class="qa-q-tag">Q.</span>${escapeHTML(qa.q)}</div>
+      ${qa.html}
+    </div>
+  `).join('');
+}
+
+function handleQASubmit(){
+  const input = document.getElementById('qa-input');
+  const question = input.value.trim();
+  if (!question) {
+    showToast('검색어를 입력하세요', true);
+    return;
+  }
+  const matched = searchRules(question);
+  qaHistory.unshift({ q: question, html: renderSearchResultHTML(matched, question) });
+  input.value = '';
+  renderQAHistory();
+  // Smooth scroll to result
+  setTimeout(() => {
+    const first = document.querySelector('#qa-history .qa-item');
+    if (first) first.scrollIntoView({behavior:'smooth', block:'start'});
+  }, 50);
+}
+
+document.getElementById('qa-submit').addEventListener('click', handleQASubmit);
+document.getElementById('qa-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); handleQASubmit(); }
+});
+document.querySelectorAll('.qa-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.getElementById('qa-input').value = chip.dataset.q;
+    handleQASubmit();
+  });
+});
+
+// ==================================================================
+// INIT
+// ==================================================================
+(async function init(){
+  document.getElementById('f-date').value = todayISO();
+  await loadAll();
+  renderAll();
+  renderGuide();
+})();
+</script>
+</body>
+</html>
