@@ -177,6 +177,11 @@
   .dtable .cat{color:var(--ink-3);font-size:11px;letter-spacing:.05em;text-transform:uppercase;font-family:var(--serif);font-weight:600}
   .dtable .sub{font-weight:500}
   .dtable .note-cell{font-size:11px;color:var(--ink-4);font-style:italic}
+  .detail-edit-hint{margin-top:12px;font-size:11px;color:var(--ink-4);line-height:1.55;flex-basis:100%}
+  input.budget-input{-moz-appearance:textfield;box-sizing:border-box;width:100%;max-width:132px;margin:0;padding:6px 8px;font-family:var(--mono);font-size:12px;text-align:right;border:1px solid var(--line);border-radius:3px;background:var(--surface);color:var(--ink)}
+  input.budget-input:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 2px var(--navy-soft)}
+  input.budget-input::-webkit-outer-spin-button,input.budget-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  input.budget-input-lg{max-width:200px;font-size:18px;padding:8px 12px}
   .mini-bar{display:inline-block;width:60px;height:4px;background:var(--line-2);border-radius:1px;overflow:hidden;vertical-align:middle;margin-right:8px}
   .mini-bar-fill{height:100%;background:var(--ink-3);display:block}
   .pct-cell{display:flex;align-items:center;justify-content:flex-end;gap:0}
@@ -923,6 +928,15 @@ function itemBudgetTotal(item){
   if (item.budgets) return item.budgets.reduce((s,v) => s+(v||0), 0);
   return item.budget ?? 0;
 }
+/** 비목·연차별 예산 합과 과제 총예산 필드를 맞춤 (통합형 제외) */
+function syncProjectTotalFromItems(p){
+  if (!p || p.type === 'unified') return;
+  if (p.type === 'yearly') {
+    p.totalBudget = p.items.reduce((s, it) => s + itemBudgetTotal(it), 0);
+  } else if (p.type === 'single') {
+    p.totalBudget = p.items.reduce((s, it) => s + (it.budget || 0), 0);
+  }
+}
 function getCategoriesForProject(pid){
   const p = getProject(pid);
   if (!p) return [];
@@ -1076,17 +1090,21 @@ function renderDetail(){
     let totals = Array(yearCount+3).fill(0);
     let rows = '';
     let prevCat = '';
-    p.items.forEach(item => {
+    const pidAttr = escapeHTML(p.id);
+    p.items.forEach((item, itemIdx) => {
       const total = itemBudgetTotal(item);
       const itemSpent = getSpentForItem(p.id, item.sub);
       const itemRem = total - itemSpent;
       const itemPct = total ? itemSpent/total : 0;
       const showCat = item.cat !== prevCat;
       prevCat = item.cat;
-      const budgets = item.budgets || Array(yearCount).fill(0);
-      const yearCells = budgets.slice(0,yearCount).map((b,i) => {
+      const budgetsPad = item.budgets ? [...item.budgets] : [];
+      while (budgetsPad.length < yearCount) budgetsPad.push(0);
+      const yearCells = budgetsPad.slice(0,yearCount).map((b,i) => {
         totals[i] += (b||0);
-        return `<td class="num">${fmt(b||0)}</td>`;
+        const yLbl = years[i] ? escapeHTML(years[i].label) : '';
+        const subLbl = escapeHTML(item.sub);
+        return `<td class="num"><input type="number" class="budget-input" min="0" step="1" inputmode="numeric" data-budget-edit="yearly" data-pid="${pidAttr}" data-item-index="${itemIdx}" data-year-index="${i}" value="${b||0}" aria-label="${subLbl} ${yLbl} 예산(원)" /></td>`;
       }).join('');
       totals[yearCount] += total;
       totals[yearCount+1] += itemSpent;
@@ -1136,8 +1154,11 @@ function renderDetail(){
     tableHTML = `
       <div style="padding:18px;background:var(--surface-alt);border-radius:3px;margin-bottom:18px">
         <div style="font-family:var(--serif);font-size:11px;letter-spacing:.1em;color:var(--ink-3);text-transform:uppercase;margin-bottom:6px">통합 예산 (비목 구분 없음)</div>
-        <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:14px">
-          <div style="font-family:var(--mono);font-size:22px;font-weight:500">${fmt(p.totalBudget)}원</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-family:var(--mono)">
+            <input type="number" class="budget-input budget-input-lg" min="0" step="1" inputmode="numeric" data-budget-edit="unified-total" data-pid="${escapeHTML(p.id)}" value="${Math.round(p.totalBudget || 0)}" aria-label="통합 총예산(원)" />
+            <span style="font-size:14px;color:var(--ink-2)">원</span>
+          </div>
           <div style="font-family:var(--mono);font-size:13px;color:var(--ink-3)">집행 ${fmt(spent)}원 · 잔액 ${fmt(remaining)}원 · 집행률 ${fmtPct(pct)}</div>
         </div>
       </div>
@@ -1151,7 +1172,8 @@ function renderDetail(){
     let bodyRows = '';
     let prevCat = '';
     let totBudget = 0, totSpent = 0;
-    p.items.forEach(item => {
+    const pidSingle = escapeHTML(p.id);
+    p.items.forEach((item, itemIdx) => {
       const itemSpent = getSpentForItem(p.id, item.sub);
       const itemBudget = item.budget || 0;
       const itemRem = itemBudget - itemSpent;
@@ -1163,7 +1185,7 @@ function renderDetail(){
       bodyRows += `<tr>
         <td class="cat">${showCat ? escapeHTML(item.cat) : ''}</td>
         <td class="sub">${escapeHTML(item.sub)}${item.note?` <span class="note-cell">· ${escapeHTML(item.note)}</span>`:''}</td>
-        <td class="num">${fmt(itemBudget)}</td>
+        <td class="num"><input type="number" class="budget-input" min="0" step="1" inputmode="numeric" data-budget-edit="single" data-pid="${pidSingle}" data-item-index="${itemIdx}" value="${itemBudget}" aria-label="${escapeHTML(item.sub)} 예산(원)" /></td>
         <td class="num">${fmt(itemSpent)}</td>
         <td class="num">${fmt(itemRem)}</td>
         <td class="num"><div class="pct-cell"><span class="mini-bar"><span class="mini-bar-fill" style="width:${Math.min(itemPct*100,100)}%;background:var(--${p.accent})"></span></span>${(itemPct*100).toFixed(1)}%</div></td>
@@ -1192,6 +1214,7 @@ function renderDetail(){
     <div class="detail-meta">
       <div class="detail-meta-left">${escapeHTML(p.name)}${p.subtitle?` <small>${escapeHTML(p.subtitle)}</small>`:''}</div>
       <div class="detail-meta-right">${escapeHTML(p.period)} · 총 ${fmt(p.totalBudget)}원</div>
+      <p class="detail-edit-hint">※ 표에서 예산 금액을 바로 수정할 수 있습니다. 입력 후 다른 칸으로 이동하면 저장되며, 연차·비목형 과제는 항목 합계가 과제 총예산과 자동으로 맞춰집니다.</p>
     </div>
     ${tableHTML}`;
 }
@@ -1428,6 +1451,55 @@ document.getElementById('tabs').addEventListener('click', e => {
   btn.classList.add('active');
   activeTab = btn.dataset.tab;
   renderDetail();
+});
+
+async function applyDetailBudgetEdit(inp){
+  const mode = inp.dataset.budgetEdit;
+  const pid = inp.dataset.pid;
+  const p = getProject(pid);
+  if (!p) return;
+  const raw = String(inp.value).replace(/,/g,'').trim();
+  let v = parseInt(raw, 10);
+  if (!Number.isFinite(v) || v < 0) v = 0;
+
+  if (mode === 'unified-total') {
+    p.totalBudget = v;
+  } else if (mode === 'yearly') {
+    const ii = parseInt(inp.dataset.itemIndex, 10);
+    const yi = parseInt(inp.dataset.yearIndex, 10);
+    const item = p.items[ii];
+    if (!item) return;
+    const yc = (p.years || []).length;
+    if (!item.budgets) item.budgets = [];
+    while (item.budgets.length < yc) item.budgets.push(0);
+    item.budgets[yi] = v;
+    syncProjectTotalFromItems(p);
+  } else if (mode === 'single') {
+    const ii = parseInt(inp.dataset.itemIndex, 10);
+    const item = p.items[ii];
+    if (!item) return;
+    item.budget = v;
+    syncProjectTotalFromItems(p);
+  } else return;
+
+  await saveProjects();
+  showToast('예산 반영됨');
+  renderHeader();
+  renderCards();
+  renderDetail();
+}
+
+document.getElementById('tab-panel').addEventListener('change', e => {
+  const inp = e.target.closest('input[data-budget-edit]');
+  if (!inp) return;
+  void applyDetailBudgetEdit(inp);
+});
+document.getElementById('tab-panel').addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const inp = e.target.closest('input[data-budget-edit]');
+  if (!inp) return;
+  e.preventDefault();
+  inp.blur();
 });
 document.getElementById('filter-chips').addEventListener('click', e => {
   const chip = e.target.closest('.chip');
