@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;600;700&family=Noto+Sans+KR:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
     --bg:#F5F2EB;
@@ -177,11 +178,6 @@
   .dtable .cat{color:var(--ink-3);font-size:11px;letter-spacing:.05em;text-transform:uppercase;font-family:var(--serif);font-weight:600}
   .dtable .sub{font-weight:500}
   .dtable .note-cell{font-size:11px;color:var(--ink-4);font-style:italic}
-  .detail-edit-hint{margin-top:12px;font-size:11px;color:var(--ink-4);line-height:1.55;flex-basis:100%}
-  input.budget-input{-moz-appearance:textfield;box-sizing:border-box;width:100%;max-width:132px;margin:0;padding:6px 8px;font-family:var(--mono);font-size:12px;text-align:right;border:1px solid var(--line);border-radius:3px;background:var(--surface);color:var(--ink)}
-  input.budget-input:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 2px var(--navy-soft)}
-  input.budget-input::-webkit-outer-spin-button,input.budget-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
-  input.budget-input-lg{max-width:200px;font-size:18px;padding:8px 12px}
   .mini-bar{display:inline-block;width:60px;height:4px;background:var(--line-2);border-radius:1px;overflow:hidden;vertical-align:middle;margin-right:8px}
   .mini-bar-fill{height:100%;background:var(--ink-3);display:block}
   .pct-cell{display:flex;align-items:center;justify-content:flex-end;gap:0}
@@ -370,12 +366,112 @@
   .qa-rule-body{font-size:12.5px;color:var(--ink-2);line-height:1.6;margin-bottom:6px}
   .qa-rule-src{font-family:var(--mono);font-size:10.5px;color:var(--ink-3);letter-spacing:.02em}
 
+  /* STORAGE STATUS BAR */
+  .storage-bar{display:flex;justify-content:space-between;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:3px;padding:10px 16px;margin-bottom:24px;font-size:12px;gap:14px;flex-wrap:wrap}
+  .sb-left{display:flex;align-items:center;gap:8px}
+  .sb-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .sb-dot{width:8px;height:8px;border-radius:50%;background:var(--ink-4);flex-shrink:0;transition:background .2s}
+  .sb-dot.ok{background:var(--success);box-shadow:0 0 0 3px rgba(74,124,89,.15)}
+  .sb-dot.warn{background:var(--warn);box-shadow:0 0 0 3px rgba(201,150,46,.15)}
+  .sb-dot.error{background:var(--danger);box-shadow:0 0 0 3px rgba(160,69,69,.15);animation:sbpulse 1.5s ease-in-out infinite}
+  @keyframes sbpulse{0%,100%{opacity:1}50%{opacity:.5}}
+  .sb-label{font-family:var(--sans);color:var(--ink-2);font-weight:500;letter-spacing:.01em}
+  .sb-meta{font-family:var(--mono);color:var(--ink-3);font-size:11.5px;font-feature-settings:"tnum" 1}
+  .sb-divider{color:var(--line);font-size:10px}
+  .sb-reminder-btn{font-family:var(--sans);font-size:11px;padding:5px 10px;background:transparent;border:1px solid var(--line);color:var(--ink-3);border-radius:99px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;transition:all .15s}
+  .sb-reminder-btn:hover{border-color:var(--ink-3);color:var(--ink-2)}
+  .sb-reminder-btn.active{background:var(--bronze-soft);border-color:var(--bronze);color:var(--bronze)}
+  .sb-reminder-btn.active #sb-reminder-state{font-weight:600}
+
+  /* CLOUD SYNC */
+  .cloud-bar{display:flex;justify-content:space-between;align-items:center;background:var(--info-soft);border:1px solid #C8DCE6;border-radius:3px;padding:12px 16px;margin-bottom:24px;font-size:12px;gap:14px;flex-wrap:wrap}
+  .cloud-bar.connected{background:var(--sage-soft);border-color:#BCD2C2}
+  .cb-left{display:flex;align-items:center;gap:10px;flex:1;min-width:240px}
+  .cb-icon{font-size:18px}
+  .cb-text{display:flex;flex-direction:column;gap:2px}
+  .cb-title{font-family:var(--serif);font-weight:600;color:var(--ink);font-size:12.5px}
+  .cb-sub{font-size:11px;color:var(--ink-3)}
+  .cb-actions{display:flex;gap:6px;flex-wrap:wrap}
+  .cb-btn{font-family:var(--sans);font-size:11.5px;padding:6px 12px;background:var(--surface);border:1px solid var(--line);color:var(--ink-2);border-radius:2px;cursor:pointer;font-weight:500}
+  .cb-btn:hover{border-color:var(--ink-3);color:var(--ink)}
+  .cb-btn.primary{background:var(--info);border-color:var(--info);color:#fff}
+  .cb-btn.primary:hover{background:#2C5570}
+  .cb-btn.danger{color:var(--danger)}
+  .cb-btn.danger:hover{border-color:var(--danger);background:var(--danger);color:#fff}
+  .cb-spin{display:inline-block;width:10px;height:10px;border:1.5px solid var(--info);border-top-color:transparent;border-radius:50%;animation:cbspin .8s linear infinite;vertical-align:middle;margin-right:4px}
+  @keyframes cbspin{to{transform:rotate(360deg)}}
+
   .footnote{margin-top:60px;padding-top:24px;border-top:1px solid var(--line);font-size:11px;color:var(--ink-4);text-align:center;font-family:var(--serif);letter-spacing:.05em}
+
+  /* LOGIN SCREEN */
+  .login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px}
+  .login-card{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:40px;max-width:440px;width:100%;box-shadow:var(--shadow-lg)}
+  .login-kicker{font-family:var(--serif);font-size:11px;letter-spacing:.2em;color:var(--bronze);text-transform:uppercase;margin-bottom:10px;font-weight:600}
+  .login-title{font-family:var(--serif);font-size:26px;font-weight:700;color:var(--ink);letter-spacing:-.02em;margin-bottom:6px;line-height:1.2}
+  .login-sub{font-size:13px;color:var(--ink-3);margin-bottom:28px;line-height:1.5}
+  .login-form{display:flex;flex-direction:column;gap:14px}
+  .login-form label{font-family:var(--serif);font-size:11px;font-weight:600;color:var(--ink-2);letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;display:block}
+  .login-form input{font-size:14px;padding:12px 14px;width:100%}
+  .login-actions{display:flex;flex-direction:column;gap:8px;margin-top:6px}
+  .login-actions .btn{width:100%;padding:13px;font-size:14px}
+  .login-msg{font-size:12px;line-height:1.6;padding:12px 14px;border-radius:3px;background:var(--info-soft);color:var(--ink-2);border-left:3px solid var(--info);display:none}
+  .login-msg.show{display:block}
+  .login-msg.error{background:var(--danger-soft);color:var(--danger);border-color:var(--danger)}
+  .login-msg.success{background:var(--sage-soft);color:var(--sage);border-color:var(--sage)}
+  .login-divider{display:flex;align-items:center;gap:10px;color:var(--ink-4);font-size:11px;letter-spacing:.1em;margin:18px 0 14px;font-family:var(--serif)}
+  .login-divider::before,.login-divider::after{content:"";flex:1;height:1px;background:var(--line)}
+  .user-bar{display:flex;align-items:center;gap:10px;padding:4px 10px;background:var(--surface);border:1px solid var(--line);border-radius:99px;font-size:12px}
+  .user-bar-name{font-weight:500;color:var(--ink-2);font-family:var(--mono);font-size:11.5px}
+  .user-bar-btn{font-size:11px;background:transparent;border:none;color:var(--ink-3);cursor:pointer;padding:4px 8px;border-radius:2px}
+  .user-bar-btn:hover{background:var(--surface-alt);color:var(--ink)}
+
+  /* REVIEW STATUS BADGES */
+  .e-status{display:inline-block;font-size:10.5px;padding:2px 8px;border-radius:99px;font-weight:600;font-family:var(--serif);letter-spacing:.05em;white-space:nowrap}
+  .e-status[data-s="검토 필요"]{background:var(--warn-soft);color:var(--warn)}
+  .e-status[data-s="승인"]{background:var(--sage-soft);color:var(--sage)}
+  .e-status[data-s="보류"]{background:#EBEBEB;color:var(--ink-3)}
+  .status-select{font-size:11.5px;padding:3px 6px;border-radius:2px}
+
+  /* LOADING STATE */
+  .app-loading{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:900}
+  .app-loading-text{font-family:var(--serif);font-size:14px;color:var(--ink-3);letter-spacing:.05em}
+  .app-loading-spin{display:inline-block;width:14px;height:14px;border:2px solid var(--bronze);border-top-color:transparent;border-radius:50%;animation:cbspin .8s linear infinite;margin-right:10px;vertical-align:middle}
 </style>
 </head>
 <body>
 
-<div class="page">
+<!-- LOADING (앱 초기 로딩) -->
+<div class="app-loading" id="app-loading">
+  <div class="app-loading-text"><span class="app-loading-spin"></span>불러오는 중…</div>
+</div>
+
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="login-screen" style="display:none">
+  <div class="login-card">
+    <div class="login-kicker">KNU-GeoAI LAB</div>
+    <div class="login-title">연구과제 예산관리</div>
+    <div class="login-sub">랩 식구들이 함께 사용하는 공유 시스템입니다.<br>이메일로 로그인하세요.</div>
+    <form class="login-form" id="login-form">
+      <div>
+        <label>이메일</label>
+        <input type="email" id="login-email" placeholder="you@example.com" autocomplete="email" required>
+      </div>
+      <div>
+        <label>비밀번호</label>
+        <input type="password" id="login-password" placeholder="6자리 이상" autocomplete="current-password" required>
+      </div>
+      <div class="login-msg" id="login-msg"></div>
+      <div class="login-actions">
+        <button type="submit" class="btn btn-primary" id="login-btn">로그인</button>
+        <button type="button" class="btn btn-ghost" id="signup-btn">계정 만들기 (첫 사용자)</button>
+      </div>
+    </form>
+    <div class="login-divider">또는</div>
+    <button type="button" class="btn btn-ghost" id="magic-btn" style="width:100%">매직 링크로 로그인 (이메일로 받기)</button>
+  </div>
+</div>
+
+<div class="page" id="app-page" style="display:none">
 
   <!-- HEADER -->
   <header class="header">
@@ -397,8 +493,26 @@
         <div class="hstat-label">집행률</div>
         <div class="hstat-val muted" id="total-pct">0.0%</div>
       </div>
+      <div class="user-bar" id="user-bar">
+        <span class="user-bar-name" id="user-bar-name">—</span>
+        <button class="user-bar-btn" id="user-bar-logout">로그아웃</button>
+      </div>
     </div>
   </header>
+
+  <!-- STORAGE STATUS BAR -->
+  <div class="storage-bar" id="storage-bar">
+    <div class="sb-left">
+      <span class="sb-dot" id="sb-dot"></span>
+      <span class="sb-label" id="sb-status">저장소 확인 중…</span>
+    </div>
+    <div class="sb-right">
+      <span class="sb-meta" id="sb-meta"></span>
+      <span class="sb-divider">·</span>
+      <span class="sb-meta" id="sb-last">마지막 저장: —</span>
+      <button class="sb-reminder-btn" id="sb-reminder-btn" type="button" title="권장 백업 알림">🔔 백업 알림 <span id="sb-reminder-state">끔</span></button>
+    </div>
+  </div>
 
   <!-- PROJECT CARDS -->
   <section class="cards" id="cards"></section>
@@ -532,6 +646,9 @@
       </h2>
       <div class="list-actions">
         <div class="chips" id="filter-chips"></div>
+        <button class="btn btn-ghost btn-sm" id="backup-btn" title="과제+지출 전체를 JSON 파일로 저장">전체 백업</button>
+        <button class="btn btn-ghost btn-sm" id="restore-btn" title="JSON 백업 파일에서 복원">백업 복원</button>
+        <input type="file" id="restore-input" accept=".json,application/json" style="display:none">
         <button class="btn btn-ghost btn-sm" id="export-btn">CSV 내보내기</button>
       </div>
     </div>
@@ -650,6 +767,7 @@
     </div>
   </div>
 </div>
+
 
 <div class="toast" id="toast"></div>
 
@@ -928,15 +1046,6 @@ function itemBudgetTotal(item){
   if (item.budgets) return item.budgets.reduce((s,v) => s+(v||0), 0);
   return item.budget ?? 0;
 }
-/** 비목·연차별 예산 합과 과제 총예산 필드를 맞춤 (통합형 제외) */
-function syncProjectTotalFromItems(p){
-  if (!p || p.type === 'unified') return;
-  if (p.type === 'yearly') {
-    p.totalBudget = p.items.reduce((s, it) => s + itemBudgetTotal(it), 0);
-  } else if (p.type === 'single') {
-    p.totalBudget = p.items.reduce((s, it) => s + (it.budget || 0), 0);
-  }
-}
 function getCategoriesForProject(pid){
   const p = getProject(pid);
   if (!p) return [];
@@ -949,31 +1058,261 @@ function getSubsForCategory(pid, cat){
 }
 
 // ==================================================================
-// STORAGE
+// SUPABASE — 클라우드 백엔드 (실시간 동기화 + 인증)
 // ==================================================================
+const SUPABASE_URL = 'https://txkljxytuzlhutdzkbby.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR4a2xqeHl0dXpsaHV0ZHprYmJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkwNzg2MjcsImV4cCI6MjA5NDY1NDYyN30.kIi4GwPSlaDxownH4_iN86LWXblzVEUg6ChP9XOorAc';
+
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let currentUser = null;
+let storageStatus = { state: 'ok', message: '클라우드 연결 중' };
+let realtimeChannel = null;
+
+// ---------- 인증 ----------
+async function checkAuth(){
+  const { data: { session } } = await sb.auth.getSession();
+  if (session) {
+    currentUser = session.user;
+    return true;
+  }
+  return false;
+}
+
+async function signIn(email, password){
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) throw error;
+  currentUser = data.user;
+}
+
+async function signUp(email, password){
+  const { data, error } = await sb.auth.signUp({ email, password });
+  if (error) throw error;
+  if (data.user && data.session) {
+    currentUser = data.user;
+    return 'logged-in';
+  }
+  return 'check-email';  // 이메일 인증 필요
+}
+
+async function sendMagicLink(email){
+  const { error } = await sb.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: window.location.href }
+  });
+  if (error) throw error;
+}
+
+async function signOut(){
+  if (realtimeChannel) {
+    sb.removeChannel(realtimeChannel);
+    realtimeChannel = null;
+  }
+  await sb.auth.signOut();
+  currentUser = null;
+  window.location.reload();
+}
+
+// ---------- DB: projects ----------
+function rowToProject(r){
+  return {
+    id: r.id,
+    name: r.name,
+    subtitle: r.subtitle || '',
+    period: r.period,
+    totalBudget: Number(r.total_budget),
+    accent: r.accent || 'navy',
+    type: r.type,
+    years: r.years || undefined,
+    items: r.items || []
+  };
+}
+function projectToRow(p){
+  return {
+    id: p.id,
+    name: p.name,
+    subtitle: p.subtitle || null,
+    period: p.period,
+    total_budget: p.totalBudget,
+    accent: p.accent,
+    type: p.type,
+    years: p.years || null,
+    items: p.items
+  };
+}
+
+async function fetchProjects(){
+  const { data, error } = await sb.from('projects').select('*').order('created_at');
+  if (error) throw error;
+  return data.map(rowToProject);
+}
+
+async function upsertProject(p){
+  const { error } = await sb.from('projects').upsert(projectToRow(p));
+  if (error) throw error;
+}
+
+async function deleteProjectRow(id){
+  const { error } = await sb.from('projects').delete().eq('id', id);
+  if (error) throw error;
+}
+
+// ---------- DB: expenses ----------
+function rowToExpense(r){
+  return {
+    id: r.id,
+    projectId: r.project_id,
+    date: r.date,
+    category: r.category,
+    subcategory: r.subcategory,
+    description: r.description,
+    amount: Number(r.amount),
+    note: r.note || '',
+    createdBy: r.created_by || '',
+    reviewStatus: r.review_status || '검토 필요',
+    reviewedBy: r.reviewed_by || null,
+    reviewedAt: r.reviewed_at || null
+  };
+}
+function expenseToRow(e){
+  return {
+    id: e.id,
+    project_id: e.projectId,
+    date: e.date,
+    category: e.category,
+    subcategory: e.subcategory,
+    description: e.description,
+    amount: e.amount,
+    note: e.note || null,
+    created_by: e.createdBy || currentUser?.email || null,
+    review_status: e.reviewStatus || '검토 필요',
+    reviewed_by: e.reviewedBy || null,
+    reviewed_at: e.reviewedAt || null
+  };
+}
+
+async function fetchExpenses(){
+  const { data, error } = await sb.from('expenses').select('*').order('date', { ascending: false });
+  if (error) throw error;
+  return data.map(rowToExpense);
+}
+
+async function upsertExpense(e){
+  const { error } = await sb.from('expenses').upsert(expenseToRow(e));
+  if (error) throw error;
+}
+
+async function deleteExpenseRow(id){
+  const { error } = await sb.from('expenses').delete().eq('id', id);
+  if (error) throw error;
+}
+
+// ---------- 로딩 ----------
 async function loadAll(){
   try {
-    const r = await window.storage.get(KEY_PROJECTS);
-    if (r && r.value) projects = JSON.parse(r.value);
-  } catch(e) { /* not found */ }
-  if (!projects || projects.length === 0) {
-    projects = JSON.parse(JSON.stringify(DEFAULT_PROJECTS));
-    await saveProjects();
+    projects = await fetchProjects();
+    expenses = await fetchExpenses();
+    if (!activeTab && projects.length > 0) activeTab = projects[0].id;
+    storageStatus = { state: 'ok', message: '클라우드 동기화 활성' };
+  } catch(e) {
+    storageStatus = { state: 'error', message: '클라우드 연결 오류: ' + e.message };
+    throw e;
   }
-  try {
-    const r = await window.storage.get(KEY_EXPENSES);
-    if (r && r.value) expenses = JSON.parse(r.value);
-  } catch(e) { expenses = []; }
-  if (!activeTab && projects.length > 0) activeTab = projects[0].id;
 }
+
 async function saveProjects(){
-  try { await window.storage.set(KEY_PROJECTS, JSON.stringify(projects)); }
-  catch(e) { showToast('과제 저장 실패: ' + e.message, true); }
+  // 일괄 저장 (현재 메모리의 projects 전부를 upsert)
+  try {
+    for (const p of projects) await upsertProject(p);
+    storageStatus = { state: 'ok', message: '클라우드 동기화 활성' };
+    renderStorageBar();
+    return true;
+  } catch(e) {
+    storageStatus = { state: 'error', message: '저장 실패: ' + e.message };
+    renderStorageBar();
+    showToast('저장 실패: ' + e.message, true);
+    return false;
+  }
 }
+
 async function saveExpenses(){
-  try { await window.storage.set(KEY_EXPENSES, JSON.stringify(expenses)); }
-  catch(e) { showToast('지출 저장 실패: ' + e.message, true); }
+  // expenses는 개별 변경이 일반적이지만, 기존 코드 호환을 위해 전체 upsert
+  try {
+    for (const e of expenses) await upsertExpense(e);
+    storageStatus = { state: 'ok', message: '클라우드 동기화 활성' };
+    renderStorageBar();
+    return true;
+  } catch(e) {
+    storageStatus = { state: 'error', message: '저장 실패: ' + e.message };
+    renderStorageBar();
+    showToast('저장 실패: ' + e.message, true);
+    return false;
+  }
 }
+
+// ---------- 실시간 동기화 ----------
+function subscribeRealtime(){
+  if (realtimeChannel) sb.removeChannel(realtimeChannel);
+  realtimeChannel = sb
+    .channel('budget-changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, async () => {
+      projects = await fetchProjects();
+      renderAll();
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses' }, async () => {
+      expenses = await fetchExpenses();
+      renderAll();
+    })
+    .subscribe();
+}
+
+// ---------- 저장 상태 표시 ----------
+function fmtRelativeTime(iso){
+  if (!iso) return '—';
+  const then = new Date(iso).getTime();
+  const diff = Date.now() - then;
+  const sec = Math.floor(diff / 1000);
+  if (sec < 5) return '방금';
+  if (sec < 60) return `${sec}초 전`;
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min}분 전`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}시간 전`;
+  const day = Math.floor(hr / 24);
+  if (day < 7) return `${day}일 전`;
+  return new Date(iso).toLocaleDateString('ko-KR');
+}
+
+async function renderStorageBar(){
+  const dot = document.getElementById('sb-dot');
+  const status = document.getElementById('sb-status');
+  const meta = document.getElementById('sb-meta');
+  const last = document.getElementById('sb-last');
+  if (!dot) return;
+  dot.className = 'sb-dot ' + storageStatus.state;
+  status.textContent = storageStatus.message;
+  meta.textContent = `과제 ${projects.length}개 · 지출 ${expenses.length}건`;
+  last.textContent = '연결: Supabase';
+
+  // reminder button (백업 알림 기능은 유지)
+  let reminderOn = false;
+  try {
+    reminderOn = localStorage.getItem('budget_backup_reminder') === 'on';
+  } catch(e) {}
+  const remBtn = document.getElementById('sb-reminder-btn');
+  const remState = document.getElementById('sb-reminder-state');
+  if (remBtn) {
+    if (reminderOn) { remBtn.classList.add('active'); remState.textContent = '켜짐'; }
+    else { remBtn.classList.remove('active'); remState.textContent = '끔'; }
+  }
+}
+
+document.getElementById('sb-reminder-btn').addEventListener('click', () => {
+  const cur = localStorage.getItem('budget_backup_reminder') === 'on';
+  const next = cur ? 'off' : 'on';
+  localStorage.setItem('budget_backup_reminder', next);
+  showToast(next === 'on' ? '백업 알림 켜짐 (주 1회)' : '백업 알림 꺼짐');
+  renderStorageBar();
+});
 
 // ==================================================================
 // RULE PANEL
@@ -1090,21 +1429,17 @@ function renderDetail(){
     let totals = Array(yearCount+3).fill(0);
     let rows = '';
     let prevCat = '';
-    const pidAttr = escapeHTML(p.id);
-    p.items.forEach((item, itemIdx) => {
+    p.items.forEach(item => {
       const total = itemBudgetTotal(item);
       const itemSpent = getSpentForItem(p.id, item.sub);
       const itemRem = total - itemSpent;
       const itemPct = total ? itemSpent/total : 0;
       const showCat = item.cat !== prevCat;
       prevCat = item.cat;
-      const budgetsPad = item.budgets ? [...item.budgets] : [];
-      while (budgetsPad.length < yearCount) budgetsPad.push(0);
-      const yearCells = budgetsPad.slice(0,yearCount).map((b,i) => {
+      const budgets = item.budgets || Array(yearCount).fill(0);
+      const yearCells = budgets.slice(0,yearCount).map((b,i) => {
         totals[i] += (b||0);
-        const yLbl = years[i] ? escapeHTML(years[i].label) : '';
-        const subLbl = escapeHTML(item.sub);
-        return `<td class="num"><input type="number" class="budget-input" min="0" step="1" inputmode="numeric" data-budget-edit="yearly" data-pid="${pidAttr}" data-item-index="${itemIdx}" data-year-index="${i}" value="${b||0}" aria-label="${subLbl} ${yLbl} 예산(원)" /></td>`;
+        return `<td class="num">${fmt(b||0)}</td>`;
       }).join('');
       totals[yearCount] += total;
       totals[yearCount+1] += itemSpent;
@@ -1154,11 +1489,8 @@ function renderDetail(){
     tableHTML = `
       <div style="padding:18px;background:var(--surface-alt);border-radius:3px;margin-bottom:18px">
         <div style="font-family:var(--serif);font-size:11px;letter-spacing:.1em;color:var(--ink-3);text-transform:uppercase;margin-bottom:6px">통합 예산 (비목 구분 없음)</div>
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px">
-          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-family:var(--mono)">
-            <input type="number" class="budget-input budget-input-lg" min="0" step="1" inputmode="numeric" data-budget-edit="unified-total" data-pid="${escapeHTML(p.id)}" value="${Math.round(p.totalBudget || 0)}" aria-label="통합 총예산(원)" />
-            <span style="font-size:14px;color:var(--ink-2)">원</span>
-          </div>
+        <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:14px">
+          <div style="font-family:var(--mono);font-size:22px;font-weight:500">${fmt(p.totalBudget)}원</div>
           <div style="font-family:var(--mono);font-size:13px;color:var(--ink-3)">집행 ${fmt(spent)}원 · 잔액 ${fmt(remaining)}원 · 집행률 ${fmtPct(pct)}</div>
         </div>
       </div>
@@ -1172,8 +1504,7 @@ function renderDetail(){
     let bodyRows = '';
     let prevCat = '';
     let totBudget = 0, totSpent = 0;
-    const pidSingle = escapeHTML(p.id);
-    p.items.forEach((item, itemIdx) => {
+    p.items.forEach(item => {
       const itemSpent = getSpentForItem(p.id, item.sub);
       const itemBudget = item.budget || 0;
       const itemRem = itemBudget - itemSpent;
@@ -1185,7 +1516,7 @@ function renderDetail(){
       bodyRows += `<tr>
         <td class="cat">${showCat ? escapeHTML(item.cat) : ''}</td>
         <td class="sub">${escapeHTML(item.sub)}${item.note?` <span class="note-cell">· ${escapeHTML(item.note)}</span>`:''}</td>
-        <td class="num"><input type="number" class="budget-input" min="0" step="1" inputmode="numeric" data-budget-edit="single" data-pid="${pidSingle}" data-item-index="${itemIdx}" value="${itemBudget}" aria-label="${escapeHTML(item.sub)} 예산(원)" /></td>
+        <td class="num">${fmt(itemBudget)}</td>
         <td class="num">${fmt(itemSpent)}</td>
         <td class="num">${fmt(itemRem)}</td>
         <td class="num"><div class="pct-cell"><span class="mini-bar"><span class="mini-bar-fill" style="width:${Math.min(itemPct*100,100)}%;background:var(--${p.accent})"></span></span>${(itemPct*100).toFixed(1)}%</div></td>
@@ -1214,7 +1545,6 @@ function renderDetail(){
     <div class="detail-meta">
       <div class="detail-meta-left">${escapeHTML(p.name)}${p.subtitle?` <small>${escapeHTML(p.subtitle)}</small>`:''}</div>
       <div class="detail-meta-right">${escapeHTML(p.period)} · 총 ${fmt(p.totalBudget)}원</div>
-      <p class="detail-edit-hint">※ 표에서 예산 금액을 바로 수정할 수 있습니다. 입력 후 다른 칸으로 이동하면 저장되며, 연차·비목형 과제는 항목 합계가 과제 총예산과 자동으로 맞춰집니다.</p>
     </div>
     ${tableHTML}`;
 }
@@ -1251,12 +1581,22 @@ function renderExpenses(){
       const idx = getYearIndex(p.id, e.date);
       return idx>=0 ? `<span style="font-size:10px;color:var(--ink-4);margin-left:6px">${escapeHTML(p.years[idx].label)}</span>` : '';
     })() : '';
+    const status = e.reviewStatus || '검토 필요';
+    const creator = e.createdBy ? escapeHTML(e.createdBy.split('@')[0]) : '—';
     return `<tr data-id="${e.id}">
       <td class="e-date">${e.date}</td>
       <td><span class="pdot" style="background:var(--${accent})"></span>${escapeHTML(p.name)}${yearLabel}</td>
       <td><div class="e-cat">${escapeHTML(e.category)} › ${escapeHTML(e.subcategory)}</div></td>
       <td><div class="e-desc">${escapeHTML(e.description)}</div>${e.note?`<div class="e-note">${escapeHTML(e.note)}</div>`:''}</td>
       <td class="num">${fmt(e.amount)}원</td>
+      <td class="center" style="font-size:11px;color:var(--ink-3);font-family:var(--mono)">${creator}</td>
+      <td class="center">
+        <select class="status-select" data-status-id="${e.id}">
+          <option value="검토 필요" ${status==='검토 필요'?'selected':''}>검토 필요</option>
+          <option value="승인" ${status==='승인'?'selected':''}>승인</option>
+          <option value="보류" ${status==='보류'?'selected':''}>보류</option>
+        </select>
+      </td>
       <td class="center" style="white-space:nowrap">
         <button class="icon-btn" data-act="edit" data-id="${e.id}" title="수정">✎</button>
         <button class="icon-btn danger" data-act="del" data-id="${e.id}" title="삭제">×</button>
@@ -1265,12 +1605,34 @@ function renderExpenses(){
   }).join('');
   list.innerHTML = `<table class="etable">
     <thead><tr>
-      <th style="width:110px">일자</th><th style="width:200px">과제</th>
-      <th style="width:240px">비목 / 세목</th><th>내용</th>
-      <th class="num" style="width:140px">금액</th>
-      <th class="center" style="width:100px">동작</th>
+      <th style="width:95px">일자</th><th style="width:160px">과제</th>
+      <th style="width:200px">비목 / 세목</th><th>내용</th>
+      <th class="num" style="width:120px">금액</th>
+      <th class="center" style="width:80px">입력자</th>
+      <th class="center" style="width:100px">검토상태</th>
+      <th class="center" style="width:80px">동작</th>
     </tr></thead>
     <tbody>${rows}</tbody></table>`;
+
+  // 검토상태 변경 핸들러
+  list.querySelectorAll('.status-select').forEach(sel => {
+    sel.addEventListener('change', async e => {
+      const id = e.target.dataset.statusId;
+      const newStatus = e.target.value;
+      const exp = expenses.find(x => x.id === id);
+      if (!exp) return;
+      exp.reviewStatus = newStatus;
+      exp.reviewedBy = currentUser?.email || null;
+      exp.reviewedAt = new Date().toISOString();
+      try {
+        await upsertExpense(exp);
+        renderAll();
+        showToast(`상태 변경: ${newStatus}`);
+      } catch(err) {
+        showToast('상태 변경 실패: ' + err.message, true);
+      }
+    });
+  });
 }
 
 // ==================================================================
@@ -1405,15 +1767,31 @@ document.getElementById('expense-form').addEventListener('submit', async e => {
     showToast('모든 필수 항목을 입력하세요', true); return;
   }
   if (data.amount <= 0) { showToast('금액은 0보다 커야 합니다', true); return; }
+
+  let target;
   if (editingId) {
     const idx = expenses.findIndex(x => x.id===editingId);
-    if (idx>=0) expenses[idx] = {...expenses[idx], ...data};
-    showToast('수정 완료');
+    if (idx>=0) {
+      target = {...expenses[idx], ...data};
+      expenses[idx] = target;
+    }
   } else {
-    expenses.push({id: uid(), ...data});
-    showToast('지출 등록됨');
+    target = {
+      id: uid(),
+      ...data,
+      createdBy: currentUser?.email || '',
+      reviewStatus: '검토 필요'
+    };
+    expenses.unshift(target);
   }
-  await saveExpenses();
+
+  try {
+    await upsertExpense(target);
+    showToast(editingId ? '수정 완료' : '지출 등록됨');
+  } catch(err) {
+    showToast('저장 실패: ' + err.message, true);
+    // 로컬 상태 롤백은 새로고침으로 자연 해소됨
+  }
   resetForm();
   renderAll();
 });
@@ -1429,11 +1807,15 @@ document.getElementById('expense-list').addEventListener('click', async e => {
   if (btn.dataset.act === 'edit') fillEditForm(exp);
   else if (btn.dataset.act === 'del') {
     if (confirm(`이 지출을 삭제할까요?\n\n${exp.date}  ${exp.description}  ${fmt(exp.amount)}원`)) {
-      expenses = expenses.filter(x => x.id!==id);
-      await saveExpenses();
-      if (editingId === id) resetForm();
-      renderAll();
-      showToast('삭제됨');
+      try {
+        await deleteExpenseRow(id);
+        expenses = expenses.filter(x => x.id!==id);
+        if (editingId === id) resetForm();
+        renderAll();
+        showToast('삭제됨');
+      } catch(err) {
+        showToast('삭제 실패: ' + err.message, true);
+      }
     }
   }
 });
@@ -1451,55 +1833,6 @@ document.getElementById('tabs').addEventListener('click', e => {
   btn.classList.add('active');
   activeTab = btn.dataset.tab;
   renderDetail();
-});
-
-async function applyDetailBudgetEdit(inp){
-  const mode = inp.dataset.budgetEdit;
-  const pid = inp.dataset.pid;
-  const p = getProject(pid);
-  if (!p) return;
-  const raw = String(inp.value).replace(/,/g,'').trim();
-  let v = parseInt(raw, 10);
-  if (!Number.isFinite(v) || v < 0) v = 0;
-
-  if (mode === 'unified-total') {
-    p.totalBudget = v;
-  } else if (mode === 'yearly') {
-    const ii = parseInt(inp.dataset.itemIndex, 10);
-    const yi = parseInt(inp.dataset.yearIndex, 10);
-    const item = p.items[ii];
-    if (!item) return;
-    const yc = (p.years || []).length;
-    if (!item.budgets) item.budgets = [];
-    while (item.budgets.length < yc) item.budgets.push(0);
-    item.budgets[yi] = v;
-    syncProjectTotalFromItems(p);
-  } else if (mode === 'single') {
-    const ii = parseInt(inp.dataset.itemIndex, 10);
-    const item = p.items[ii];
-    if (!item) return;
-    item.budget = v;
-    syncProjectTotalFromItems(p);
-  } else return;
-
-  await saveProjects();
-  showToast('예산 반영됨');
-  renderHeader();
-  renderCards();
-  renderDetail();
-}
-
-document.getElementById('tab-panel').addEventListener('change', e => {
-  const inp = e.target.closest('input[data-budget-edit]');
-  if (!inp) return;
-  void applyDetailBudgetEdit(inp);
-});
-document.getElementById('tab-panel').addEventListener('keydown', e => {
-  if (e.key !== 'Enter') return;
-  const inp = e.target.closest('input[data-budget-edit]');
-  if (!inp) return;
-  e.preventDefault();
-  inp.blur();
 });
 document.getElementById('filter-chips').addEventListener('click', e => {
   const chip = e.target.closest('.chip');
@@ -1533,6 +1866,59 @@ document.getElementById('export-btn').addEventListener('click', () => {
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
   showToast('CSV 내보냄');
+});
+
+// ==================================================================
+// 전체 백업 / 복원 (JSON)
+// ==================================================================
+document.getElementById('backup-btn').addEventListener('click', async () => {
+  const payload = {
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    projects,
+    expenses
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `연구비_백업_${todayISO()}.json`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  await window.storage.set('budget_last_snapshot', new Date().toISOString());
+  showToast(`백업 완료 · 과제 ${projects.length}개 / 지출 ${expenses.length}건`);
+});
+
+document.getElementById('restore-btn').addEventListener('click', () => {
+  document.getElementById('restore-input').click();
+});
+
+document.getElementById('restore-input').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+    if (!data.projects || !Array.isArray(data.projects) || !Array.isArray(data.expenses)) {
+      throw new Error('백업 파일 형식이 올바르지 않습니다');
+    }
+    const msg = `복원하면 현재 데이터(과제 ${projects.length}개 / 지출 ${expenses.length}건)가 ` +
+                `백업 파일의 데이터(과제 ${data.projects.length}개 / 지출 ${data.expenses.length}건)로 ` +
+                `완전히 교체됩니다.\n\n계속할까요?`;
+    if (!confirm(msg)) { e.target.value = ''; return; }
+    projects = data.projects;
+    expenses = data.expenses;
+    await saveProjects();
+    await saveExpenses();
+    if (projects.length > 0) activeTab = projects[0].id;
+    activeFilter = 'all';
+    resetForm();
+    renderAll();
+    showToast(`복원 완료 · 과제 ${projects.length}개 / 지출 ${expenses.length}건`);
+  } catch (err) {
+    showToast('복원 실패: ' + err.message, true);
+  }
+  e.target.value = '';
 });
 
 // ==================================================================
@@ -1784,14 +2170,23 @@ document.getElementById('p-save-btn').addEventListener('click', async () => {
   if (editingProjectId) {
     const idx = projects.findIndex(p => p.id === editingProjectId);
     if (idx >= 0) projects[idx] = { ...projects[idx], ...projectData };
-    showToast('과제 수정됨');
+    try {
+      await upsertProject(projects[idx]);
+      showToast('과제 수정됨');
+    } catch(err) {
+      showToast('저장 실패: ' + err.message, true);
+    }
   } else {
     projectData.id = pid();
     projects.push(projectData);
     activeTab = projectData.id;
-    showToast('과제 추가됨');
+    try {
+      await upsertProject(projectData);
+      showToast('과제 추가됨');
+    } catch(err) {
+      showToast('저장 실패: ' + err.message, true);
+    }
   }
-  await saveProjects();
   closeProjectModal();
   renderAll();
 });
@@ -1803,15 +2198,19 @@ document.getElementById('p-delete-btn').addEventListener('click', async () => {
   let msg = `과제 「${p.name}」을 삭제하시겠습니까?`;
   if (relatedExpenses > 0) msg += `\n\n⚠ 이 과제의 지출 내역 ${relatedExpenses}건도 함께 삭제됩니다.`;
   if (!confirm(msg)) return;
-  projects = projects.filter(x => x.id !== editingProjectId);
-  expenses = expenses.filter(e => e.projectId !== editingProjectId);
-  if (activeTab === editingProjectId) activeTab = projects[0]?.id || null;
-  if (activeFilter === editingProjectId) activeFilter = 'all';
-  await saveProjects();
-  await saveExpenses();
-  closeProjectModal();
-  renderAll();
-  showToast('과제 삭제됨');
+  try {
+    // DB의 ON DELETE CASCADE가 expenses도 함께 삭제함
+    await deleteProjectRow(editingProjectId);
+    projects = projects.filter(x => x.id !== editingProjectId);
+    expenses = expenses.filter(e => e.projectId !== editingProjectId);
+    if (activeTab === editingProjectId) activeTab = projects[0]?.id || null;
+    if (activeFilter === editingProjectId) activeFilter = 'all';
+    closeProjectModal();
+    renderAll();
+    showToast('과제 삭제됨');
+  } catch(err) {
+    showToast('삭제 실패: ' + err.message, true);
+  }
 });
 
 // guide toggle
@@ -1824,13 +2223,13 @@ document.getElementById('guide-toggle').addEventListener('click', () => {
 
 // toast
 let toastTimer;
-function showToast(msg, isError = false){
+function showToast(msg, isError = false, duration = 2600){
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.toggle('error', isError);
   t.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+  toastTimer = setTimeout(() => t.classList.remove('show'), duration);
 }
 
 // ==================================================================
@@ -2008,13 +2407,138 @@ document.querySelectorAll('.qa-chip').forEach(chip => {
 });
 
 // ==================================================================
-// INIT
+// AUTH UI 핸들러
 // ==================================================================
+function showLoginMsg(msg, type){
+  const el = document.getElementById('login-msg');
+  el.textContent = msg;
+  el.className = 'login-msg show ' + (type || '');
+}
+
+document.getElementById('login-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  if (!email || !password) { showLoginMsg('이메일과 비밀번호를 입력하세요', 'error'); return; }
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true;
+  btn.textContent = '로그인 중…';
+  try {
+    await signIn(email, password);
+    showLoginMsg('로그인 성공! 데이터 불러오는 중…', 'success');
+    setTimeout(() => bootApp(), 500);
+  } catch(err) {
+    let msg = err.message || String(err);
+    if (msg.includes('Invalid login')) msg = '이메일 또는 비밀번호가 올바르지 않습니다';
+    if (msg.includes('Email not confirmed')) msg = '이메일 인증을 먼저 완료하세요 (받은 메일 확인)';
+    showLoginMsg(msg, 'error');
+    btn.disabled = false;
+    btn.textContent = '로그인';
+  }
+});
+
+document.getElementById('signup-btn').addEventListener('click', async () => {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  if (!email || !password) { showLoginMsg('이메일과 비밀번호를 입력하세요', 'error'); return; }
+  if (password.length < 6) { showLoginMsg('비밀번호는 6자 이상이어야 합니다', 'error'); return; }
+  const btn = document.getElementById('signup-btn');
+  btn.disabled = true;
+  btn.textContent = '계정 만드는 중…';
+  try {
+    const result = await signUp(email, password);
+    if (result === 'check-email') {
+      showLoginMsg('확인 이메일을 보냈습니다. 받은 메일의 링크를 클릭한 후 다시 로그인하세요.', 'success');
+    } else {
+      showLoginMsg('계정 생성 완료! 데이터 불러오는 중…', 'success');
+      setTimeout(() => bootApp(), 500);
+    }
+  } catch(err) {
+    showLoginMsg(err.message || String(err), 'error');
+  }
+  btn.disabled = false;
+  btn.textContent = '계정 만들기 (첫 사용자)';
+});
+
+document.getElementById('magic-btn').addEventListener('click', async () => {
+  const email = document.getElementById('login-email').value.trim();
+  if (!email) { showLoginMsg('이메일을 입력하세요', 'error'); return; }
+  const btn = document.getElementById('magic-btn');
+  btn.disabled = true;
+  btn.textContent = '전송 중…';
+  try {
+    await sendMagicLink(email);
+    showLoginMsg('이메일로 매직 링크를 보냈습니다. 메일을 확인하고 링크를 클릭하세요.', 'success');
+  } catch(err) {
+    showLoginMsg(err.message || String(err), 'error');
+  }
+  btn.disabled = false;
+  btn.textContent = '매직 링크로 로그인 (이메일로 받기)';
+});
+
+document.getElementById('user-bar-logout').addEventListener('click', async () => {
+  if (!confirm('로그아웃 하시겠습니까?')) return;
+  await signOut();
+});
+
+// ==================================================================
+// 부팅 시퀀스
+// ==================================================================
+function showLogin(){
+  document.getElementById('app-loading').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app-page').style.display = 'none';
+}
+function showApp(){
+  document.getElementById('app-loading').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app-page').style.display = 'block';
+  if (currentUser) {
+    document.getElementById('user-bar-name').textContent = currentUser.email;
+  }
+}
+
+async function bootApp(){
+  try {
+    document.getElementById('app-loading').style.display = 'flex';
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app-page').style.display = 'none';
+    await loadAll();
+    document.getElementById('f-date').value = todayISO();
+    renderAll();
+    renderGuide();
+    renderStorageBar();
+    subscribeRealtime();
+    showApp();
+  } catch(e) {
+    showLoginMsg('데이터 로딩 실패: ' + (e.message || e) + '\n다시 로그인하세요.', 'error');
+    showLogin();
+  }
+}
+
 (async function init(){
-  document.getElementById('f-date').value = todayISO();
-  await loadAll();
-  renderAll();
-  renderGuide();
+  // OAuth/magic-link 콜백 처리
+  if (window.location.hash.includes('access_token') || window.location.search.includes('code=')) {
+    // Supabase가 자동으로 세션 설정
+    await new Promise(r => setTimeout(r, 300));
+    // URL 정리
+    history.replaceState(null, '', window.location.pathname);
+  }
+  const isAuthed = await checkAuth();
+  if (isAuthed) {
+    await bootApp();
+  } else {
+    showLogin();
+  }
+  // auth state 변화 감지
+  sb.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_OUT') {
+      currentUser = null;
+      showLogin();
+    } else if (event === 'SIGNED_IN' && session) {
+      currentUser = session.user;
+    }
+  });
 })();
 </script>
 </body>
