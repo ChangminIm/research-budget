@@ -2,7 +2,10 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#F5F2EB">
 <title>연구과제 통합 예산관리</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -319,12 +322,173 @@
     .item-row.t-yearly,.item-hdr.t-yearly{grid-template-columns:1fr 1fr;gap:6px}
     .item-row.t-yearly>*{font-size:12px}
   }
+
+  /* ====== MOBILE (≤600px) — 폰 전용 최적화 ====== */
   @media (max-width:600px){
-    .form-grid{grid-template-columns:1fr}
-    .toast{bottom:16px;right:16px;left:16px}
-    .list-actions{width:100%}
-    .modal-body{padding:16px}
-    .modal-head,.modal-foot{padding:14px 16px}
+    body{font-size:15px}
+    .page{padding:16px 14px 80px}
+
+    /* 헤더: 큰 제목·수치를 컴팩트하게 */
+    .header{padding:4px 0 16px;margin-bottom:18px;gap:14px;flex-direction:column;align-items:stretch}
+    .header-left{width:100%}
+    .kicker{font-size:10px;letter-spacing:.15em;margin-bottom:6px}
+    .title{font-size:22px;line-height:1.15}
+    .subtitle{font-size:12.5px;margin-top:6px}
+
+    /* 헤더 통계: 한 줄에 3개 카드형, 작게 */
+    .header-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:12px;background:var(--surface);border:1px solid var(--line);border-radius:4px}
+    .hstat{text-align:center;padding:0;word-break:keep-all}
+    .hstat-label{font-size:9.5px;letter-spacing:.1em;margin-bottom:3px;word-break:keep-all;white-space:nowrap}
+    .hstat-val{font-size:14px;font-weight:600;line-height:1.2;word-break:break-all}
+
+    /* 사용자 바: 헤더 우측 → 단독 줄 */
+    .user-bar{align-self:stretch;justify-content:space-between;padding:8px 14px;border-radius:4px;background:var(--surface-alt)}
+    .user-bar-name{font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:60vw}
+    .user-bar-btn{padding:6px 12px;font-size:12px;min-height:32px}
+
+    /* 스토리지 바 */
+    .storage-bar{padding:10px 12px;font-size:11.5px;gap:8px}
+    .sb-right{justify-content:space-between;width:100%;gap:6px}
+    .sb-divider{display:none}
+    .sb-meta{font-size:10.5px}
+    .sb-reminder-btn{padding:6px 10px;min-height:32px}
+
+    /* 과제 카드: 1열 */
+    .cards{grid-template-columns:1fr;gap:12px;margin-bottom:32px}
+    .card{padding:18px}
+    .card-name{font-size:18px}
+    .card-sub{font-size:12px;margin-bottom:12px}
+    .card-period{font-size:10.5px;margin-bottom:14px;padding-bottom:10px}
+    .card-budget{font-size:18px}
+    .card-edit{opacity:1;width:32px;height:32px;font-size:14px}
+    .card-add{min-height:120px}
+
+    /* 섹션 */
+    section{margin-bottom:32px}
+    .section-head{margin-bottom:14px}
+    .section-title{font-size:16px;gap:8px}
+    .section-num{font-size:11px}
+    .section-count{font-size:11px;display:block;width:100%;margin-top:2px}
+
+    /* 입력 폼 */
+    .form-card{padding:16px}
+    .form-grid{grid-template-columns:1fr;gap:12px;margin-bottom:12px}
+    .form-row{grid-template-columns:1fr;gap:12px;margin-bottom:12px}
+    .field-label{font-size:11px}
+    input,select,textarea{font-size:16px;padding:11px 12px;min-height:44px}
+    .form-actions{flex-direction:column-reverse;gap:8px}
+    .form-actions .btn{width:100%;min-height:48px;font-size:14px}
+
+    /* NRF 규정 패널 */
+    .rule-panel{padding:16px}
+    .rule-panel-title{font-size:13px}
+    .rule-empty{padding:20px 10px;font-size:11.5px}
+    .rule-item{padding:10px;font-size:11.5px}
+
+    /* Q&A 섹션 */
+    .qa-card{padding:16px}
+    .qa-intro{font-size:12px;margin-bottom:12px;padding-bottom:12px}
+    .qa-chip{font-size:11.5px;padding:8px 12px;min-height:36px}
+    .qa-examples{gap:6px;margin-bottom:14px}
+    .qa-input-row{flex-direction:column;gap:8px}
+    .qa-input-row input{min-height:44px}
+    .qa-input-row button{width:100%;min-height:44px}
+    .qa-summary{font-size:12px;padding:10px}
+    .qa-rule-card{padding:10px 12px}
+    .qa-rule-head{font-size:12.5px}
+    .qa-rule-body{font-size:11.5px}
+
+    /* 탭 */
+    .tabs{overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+    .tabs::-webkit-scrollbar{display:none}
+    .tab{padding:12px 14px;font-size:13px;flex-shrink:0;min-height:44px}
+    .tab-panel{padding:16px 12px}
+
+    /* 과제 상세 테이블: 가로 스크롤 + 크기 보장 */
+    .detail-meta{flex-direction:column;align-items:flex-start;gap:6px;margin-bottom:14px;padding-bottom:10px}
+    .detail-meta-left{font-size:14px}
+    .detail-meta-left small{display:block;margin-left:0;margin-top:2px;font-size:11.5px}
+    .detail-meta-right{font-size:11.5px}
+    .tab-panel{overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .dtable{min-width:560px;font-size:11.5px}
+    .dtable th,.dtable td{padding:8px 8px;white-space:nowrap}
+    .dtable .sub{white-space:nowrap}
+    .dtable .cat{white-space:nowrap}
+    .note-cell{display:none}
+    .mini-bar{width:36px}
+
+    /* 지출 내역 — 표를 카드형으로 변환 */
+    .list-actions{flex-direction:column;align-items:stretch;gap:10px}
+    .list-actions .btn{width:100%;min-height:40px}
+    .chips{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;padding-bottom:2px}
+    .chips::-webkit-scrollbar{display:none}
+    .chip{flex-shrink:0;padding:8px 14px;font-size:12px;min-height:36px}
+    .etable, .etable thead{display:none}  /* 헤더 행 숨김 */
+    #expense-list table.etable{display:block;background:transparent;border:none;box-shadow:none}
+    #expense-list table.etable tbody{display:block}
+    #expense-list table.etable tr{display:block;background:var(--surface);border:1px solid var(--line);border-radius:4px;margin-bottom:10px;padding:14px;box-shadow:var(--shadow-sm)}
+    #expense-list table.etable td{display:block;padding:0;border:none;text-align:left !important}
+    #expense-list td.e-date{font-size:11px;color:var(--ink-3);margin-bottom:6px}
+    #expense-list td.num{font-family:var(--mono);font-size:18px;font-weight:600;margin:4px 0 8px;text-align:left}
+    #expense-list td .e-cat{font-size:11px;color:var(--ink-3);margin-bottom:4px}
+    #expense-list td .e-desc{font-size:14px;font-weight:500;margin-bottom:6px;white-space:normal}
+    #expense-list td .e-note{display:block;font-size:11.5px;font-style:italic;color:var(--ink-4);margin-bottom:8px}
+    .pdot{width:8px;height:8px}
+    .status-select{font-size:12px;min-height:36px;width:100%;padding:6px 10px}
+    .icon-btn{width:40px;height:40px;font-size:14px}
+    /* 두 번째 줄: 입력자 + 검토상태 + 동작 - 한 줄 정렬 */
+    #expense-list tr td:nth-child(6){display:inline-block;font-size:11px;color:var(--ink-3);margin-right:auto;padding-top:8px;border-top:1px dashed var(--line-2);width:100%;margin-top:4px}
+    #expense-list tr td:nth-child(7){display:inline-block;width:calc(100% - 100px);margin-top:6px}
+    #expense-list tr td:nth-child(8){display:inline-block;width:90px;text-align:right !important;margin-top:6px}
+    /* 카운트 표시 */
+    .section-count{font-size:11px}
+
+    /* 모달: 전체 화면 */
+    .modal-bg{padding:0;align-items:stretch}
+    .modal{max-height:100vh;border-radius:0;border:none;height:100vh}
+    .modal-head{padding:14px 16px}
+    .modal-title{font-size:16px}
+    .modal-close{width:40px;height:40px;font-size:24px}
+    .modal-body{padding:14px}
+    .modal-foot{padding:12px 14px;flex-direction:column-reverse;gap:8px}
+    .modal-foot-left,.modal-foot-right{width:100%;display:flex;flex-direction:column;gap:8px}
+    .modal-foot .btn{width:100%;min-height:44px}
+    .pform-grid{grid-template-columns:1fr;gap:12px;margin-bottom:14px}
+    .accent-picker{gap:10px}
+    .accent-opt{width:36px;height:36px}
+    .type-picker{flex-direction:column}
+    .type-opt{padding:12px;min-height:54px}
+    .items-builder{padding:12px}
+    .item-hdr{display:none}  /* 헤더 숨기고 라벨 inline으로 */
+    .item-row.t-yearly,.item-row.t-single,.item-row.t-unified{grid-template-columns:1fr;gap:8px;padding:14px 0;border-bottom:1px solid var(--line-2)}
+    .item-row .x{justify-self:end;width:36px;height:36px}
+    .item-row input::before{content:attr(data-label);font-size:10px;color:var(--ink-3)}
+    .add-presets{gap:6px}
+    .preset-btn{padding:8px 12px;font-size:11px;min-height:36px}
+    .add-item button{font-size:13px;padding:10px 16px;min-height:40px;width:100%}
+    .add-item{flex-direction:column;gap:10px}
+
+    /* 가이드 */
+    .guide-toggle{font-size:15px;padding:10px 0}
+    .guide-grid{grid-template-columns:1fr;gap:10px}
+    .guide-cat-card{padding:14px}
+    .guide-rule{padding:10px}
+
+    /* 토스트 */
+    .toast{bottom:16px;left:16px;right:16px;text-align:center}
+
+    /* 로그인 화면 폰 최적화 */
+    .login-card{padding:28px 22px}
+    .login-title{font-size:22px}
+    .login-sub{font-size:12.5px}
+    .login-form input{font-size:16px;min-height:48px}
+    .login-actions .btn{min-height:48px;font-size:14px}
+  }
+
+  /* iPhone notch / safe area */
+  @supports(padding:max(0px)){
+    .page{padding-left:max(14px, env(safe-area-inset-left));padding-right:max(14px, env(safe-area-inset-right))}
+    .toast{bottom:max(16px, env(safe-area-inset-bottom))}
   }
 
   /* Q&A SECTION */
@@ -568,6 +732,12 @@
               <span class="field-label">메모 (선택)</span>
               <input type="text" id="f-note" placeholder="영수증 번호, 거래처 등">
             </div>
+          </div>
+          <div class="form-row-single admin-only" id="private-toggle-row" style="display:none">
+            <label style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--warn-soft);border-left:3px solid var(--warn);border-radius:3px;cursor:pointer;font-size:13px">
+              <input type="checkbox" id="f-private" style="width:auto;min-height:auto;margin:0">
+              <span><strong>🔒 비공개 항목</strong> · 학생에게 이 지출의 내용·금액·존재가 모두 숨겨집니다. 잔액 계산에는 반영됩니다.</span>
+            </label>
           </div>
           <div class="form-actions">
             <button type="button" class="btn btn-ghost" id="cancel-btn" hidden>취소</button>
@@ -1029,6 +1199,9 @@ function computeYearsFromPeriod(period, count){
 }
 
 function getSpentForProject(pid){
+  // 서버에서 받은 합계가 있으면 그걸 사용 (학생도 비공개 항목 금액 반영)
+  if (projectTotals[pid]) return projectTotals[pid].total_spent;
+  // fallback: 로컬 expenses 합계
   return expenses.filter(e => e.projectId === pid).reduce((s,e) => s+e.amount, 0);
 }
 function getSpentForItem(pid, sub){
@@ -1065,6 +1238,8 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let currentUser = null;
+let isAdmin = false;  // 관리자 여부 (서버 함수로 확인)
+let projectTotals = {};  // { projectId: { total_spent, approved_spent, pending_spent, hidden_count } }
 let storageStatus = { state: 'ok', message: '클라우드 연결 중' };
 let realtimeChannel = null;
 
@@ -1073,15 +1248,47 @@ async function checkAuth(){
   const { data: { session } } = await sb.auth.getSession();
   if (session) {
     currentUser = session.user;
+    await refreshAdminStatus();
     return true;
   }
   return false;
+}
+
+async function refreshAdminStatus(){
+  try {
+    const { data, error } = await sb.rpc('is_admin');
+    if (error) throw error;
+    isAdmin = !!data;
+  } catch(e) {
+    console.warn('admin 체크 실패:', e);
+    isAdmin = false;
+  }
+}
+
+async function fetchProjectTotals(){
+  try {
+    const { data, error } = await sb.rpc('get_project_totals');
+    if (error) throw error;
+    projectTotals = {};
+    for (const row of (data || [])) {
+      projectTotals[row.project_id] = {
+        total_spent: Number(row.total_spent),
+        approved_spent: Number(row.approved_spent),
+        pending_spent: Number(row.pending_spent),
+        visible_count: Number(row.expense_count_visible),
+        hidden_count: Number(row.hidden_count)
+      };
+    }
+  } catch(e) {
+    console.warn('합계 fetch 실패:', e);
+  }
 }
 
 async function signIn(email, password){
   const { data, error } = await sb.auth.signInWithPassword({ email, password });
   if (error) throw error;
   currentUser = data.user;
+  await refreshAdminStatus();
 }
 
 async function signUp(email, password){
@@ -1089,9 +1296,10 @@ async function signUp(email, password){
   if (error) throw error;
   if (data.user && data.session) {
     currentUser = data.user;
+    await refreshAdminStatus();
     return 'logged-in';
   }
-  return 'check-email';  // 이메일 인증 필요
+  return 'check-email';
 }
 
 async function sendMagicLink(email){
@@ -1170,7 +1378,8 @@ function rowToExpense(r){
     createdBy: r.created_by || '',
     reviewStatus: r.review_status || '검토 필요',
     reviewedBy: r.reviewed_by || null,
-    reviewedAt: r.reviewed_at || null
+    reviewedAt: r.reviewed_at || null,
+    isPrivate: !!r.is_private
   };
 }
 function expenseToRow(e){
@@ -1186,7 +1395,8 @@ function expenseToRow(e){
     created_by: e.createdBy || currentUser?.email || null,
     review_status: e.reviewStatus || '검토 필요',
     reviewed_by: e.reviewedBy || null,
-    reviewed_at: e.reviewedAt || null
+    reviewed_at: e.reviewedAt || null,
+    is_private: !!e.isPrivate
   };
 }
 
@@ -1211,6 +1421,7 @@ async function loadAll(){
   try {
     projects = await fetchProjects();
     expenses = await fetchExpenses();
+    await fetchProjectTotals();
     if (!activeTab && projects.length > 0) activeTab = projects[0].id;
     storageStatus = { state: 'ok', message: '클라우드 동기화 활성' };
   } catch(e) {
@@ -1256,10 +1467,12 @@ function subscribeRealtime(){
     .channel('budget-changes')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'projects' }, async () => {
       projects = await fetchProjects();
+      await fetchProjectTotals();
       renderAll();
     })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'expenses' }, async () => {
       expenses = await fetchExpenses();
+      await fetchProjectTotals();
       renderAll();
     })
     .subscribe();
@@ -1352,7 +1565,11 @@ function renderRulePanel(cat, sub){
 // ==================================================================
 function renderHeader(){
   const totalBudget = projects.reduce((s,p) => s+p.totalBudget, 0);
-  const totalSpent = expenses.reduce((s,e) => s+e.amount, 0);
+  // 서버 totals가 있으면 그걸 합산 (비공개 항목도 반영), 없으면 expenses 합산
+  const hasTotals = Object.keys(projectTotals).length > 0;
+  const totalSpent = hasTotals
+    ? projects.reduce((s,p) => s + (projectTotals[p.id]?.total_spent || 0), 0)
+    : expenses.reduce((s,e) => s+e.amount, 0);
   const totalRem = totalBudget - totalSpent;
   document.getElementById('proj-count').textContent = projects.length;
   document.getElementById('total-budget').textContent = fmt(totalBudget);
@@ -1368,10 +1585,17 @@ function renderCards(){
     const rem = p.totalBudget - spent;
     const pct = p.totalBudget ? (spent/p.totalBudget*100) : 0;
     const pctCapped = Math.min(pct, 100);
+    const tot = projectTotals[p.id];
+    const hiddenNote = (!isAdmin && tot && tot.hidden_count > 0)
+      ? `<div style="font-size:10px;color:var(--ink-4);font-style:italic;margin-top:4px">🔒 비공개 항목 ${tot.hidden_count}건이 잔액에 반영됨</div>`
+      : '';
+    const editBtn = isAdmin
+      ? `<button class="card-edit" data-edit="${p.id}" title="과제 편집">✎</button>`
+      : '';
     return `
       <div class="card" data-accent="${p.accent}" data-pid="${p.id}">
         <div class="card-accent"></div>
-        <button class="card-edit" data-edit="${p.id}" title="과제 편집">✎</button>
+        ${editBtn}
         <div class="card-tag">Project · ${String(i+1).padStart(2,'0')}</div>
         <div class="card-name">${escapeHTML(p.name)}</div>
         <div class="card-sub">${escapeHTML(p.subtitle || '')||'&nbsp;'}</div>
@@ -1386,13 +1610,15 @@ function renderCards(){
           <div class="card-bar"><div class="card-bar-fill" style="width:${pctCapped}%"></div></div>
           <div class="card-pct"><span>집행률</span><span>${pct.toFixed(1)}%</span></div>
         </div>
+        ${hiddenNote}
       </div>`;
   }).join('');
-  container.innerHTML = cards + `
+  const addCard = isAdmin ? `
     <div class="card-add" id="add-proj-card">
       <div class="card-add-icon">+</div>
       <div class="card-add-text">과제 추가</div>
-    </div>`;
+    </div>` : '';
+  container.innerHTML = cards + addCard;
 }
 
 // ==================================================================
@@ -1583,9 +1809,10 @@ function renderExpenses(){
     })() : '';
     const status = e.reviewStatus || '검토 필요';
     const creator = e.createdBy ? escapeHTML(e.createdBy.split('@')[0]) : '—';
+    const lockBadge = e.isPrivate ? '<span style="display:inline-block;margin-left:6px;font-size:10px;padding:2px 7px;background:var(--warn-soft);color:var(--warn);border-radius:99px;font-weight:600;letter-spacing:.05em">🔒 비공개</span>' : '';
     return `<tr data-id="${e.id}">
       <td class="e-date">${e.date}</td>
-      <td><span class="pdot" style="background:var(--${accent})"></span>${escapeHTML(p.name)}${yearLabel}</td>
+      <td><span class="pdot" style="background:var(--${accent})"></span>${escapeHTML(p.name)}${yearLabel}${lockBadge}</td>
       <td><div class="e-cat">${escapeHTML(e.category)} › ${escapeHTML(e.subcategory)}</div></td>
       <td><div class="e-desc">${escapeHTML(e.description)}</div>${e.note?`<div class="e-note">${escapeHTML(e.note)}</div>`:''}</td>
       <td class="num">${fmt(e.amount)}원</td>
@@ -1697,6 +1924,8 @@ function resetForm(){
   document.getElementById('f-category').disabled = true;
   document.getElementById('f-sub').innerHTML = '<option value="">먼저 비목 선택</option>';
   document.getElementById('f-sub').disabled = true;
+  const fp = document.getElementById('f-private');
+  if (fp) fp.checked = false;
   editingId = null;
   document.getElementById('form-card').classList.remove('editing');
   document.getElementById('submit-btn').textContent = '저장';
@@ -1715,6 +1944,8 @@ function fillEditForm(exp){
   document.getElementById('f-desc').value = exp.description;
   document.getElementById('f-amount').value = exp.amount;
   document.getElementById('f-note').value = exp.note || '';
+  const fp = document.getElementById('f-private');
+  if (fp) fp.checked = !!exp.isPrivate;
   document.getElementById('form-card').classList.add('editing');
   document.getElementById('submit-btn').textContent = '수정 저장';
   document.getElementById('cancel-btn').hidden = false;
@@ -1762,6 +1993,7 @@ document.getElementById('expense-form').addEventListener('submit', async e => {
     description: document.getElementById('f-desc').value.trim(),
     amount: parseInt(document.getElementById('f-amount').value, 10),
     note: document.getElementById('f-note').value.trim(),
+    isPrivate: isAdmin && document.getElementById('f-private').checked,
   };
   if (!data.date || !data.projectId || !data.category || !data.subcategory || !data.description || !data.amount) {
     showToast('모든 필수 항목을 입력하세요', true); return;
@@ -1787,7 +2019,7 @@ document.getElementById('expense-form').addEventListener('submit', async e => {
 
   try {
     await upsertExpense(target);
-    showToast(editingId ? '수정 완료' : '지출 등록됨');
+    showToast(editingId ? '수정 완료' : (data.isPrivate ? '🔒 비공개 지출 등록됨' : '지출 등록됨'));
   } catch(err) {
     showToast('저장 실패: ' + err.message, true);
     // 로컬 상태 롤백은 새로고침으로 자연 해소됨
@@ -2494,8 +2726,13 @@ function showApp(){
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app-page').style.display = 'block';
   if (currentUser) {
-    document.getElementById('user-bar-name').textContent = currentUser.email;
+    const label = isAdmin ? `👑 ${currentUser.email}` : currentUser.email;
+    document.getElementById('user-bar-name').textContent = label;
   }
+  // 관리자 전용 UI 토글
+  document.querySelectorAll('.admin-only').forEach(el => {
+    el.style.display = isAdmin ? '' : 'none';
+  });
 }
 
 async function bootApp(){
